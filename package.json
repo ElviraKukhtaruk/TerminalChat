@@ -1,0 +1,9 @@
+{
+  "name": "tcpchat",
+  "version": "1.0.0",
+  "description": "TCP chat :D",
+  "main": "client.js",
+  "bin": "bin.js",
+  "author": "ela",
+  "license": "ISC"
+}
