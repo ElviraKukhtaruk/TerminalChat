@@ -1,5 +1,6 @@
-let net = require('net');
-let event;
+let net    = require('net');
+let crypto = require('./encryption');
+
 let currentUserData = '';
 
 
@@ -10,8 +11,44 @@ let client = new net.Socket();
 
 client.connect(port, host, function(){
  console.log(`Connected to host: ${host}, port: ${port}`);
+ client.status = 'new_connect';
+ let myECDHKeys = crypto.generateECDHKeys();
+ console.log('Sending public key');
+ client.write(myECDHKeys.publicKey);
+
+ client.on('data', async function(data){
+  switch(client.status){
+    case 'new_connect':
+      let signature = await crypto.createSignature(data, './client_priv.pem');
+      client.status = 'pub_key_rcvd';
+      client.write(signature);
+      break;
+    case 'pub_key_rcvd':
+      let verifySignature = await crypto.verifySignature(myECDHKeys.publicKey, './pub.pem', data);
+      console.log(`Signature verification result: ${verifySignature}`);
+ }
+
+   //let d = new Date();
+   //process.stdout.clearLine();
+   //process.stdout.cursorTo(0);
+   //console.log(`USER ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}> ${data.toString()}`);
+   //process.stdout.write(currentUserData);
+});
  
- let stdin = process.openStdin();
+});
+
+
+
+client.on('close', function(){
+    console.log('Connection closed');
+});
+}
+
+
+
+
+/*
+let stdin = process.openStdin();
      stdin.setRawMode(true);
      stdin.setEncoding('utf-8');
  
@@ -39,20 +76,7 @@ client.connect(port, host, function(){
         process.stdout.write(data);
       }
     });
-});
-
-client.on('data', function(data){
-   let d = new Date();
-   process.stdout.clearLine();
-   process.stdout.cursorTo(0);
-   console.log(`USER ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}> ${data.toString()}`);
-   process.stdout.write(currentUserData);
-});
-
-client.on('close', function(){
-    console.log('Connection closed');
-});
-}
+*/
 
 
 

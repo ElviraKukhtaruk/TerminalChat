@@ -1,6 +1,6 @@
 let net                = require('net');
-let tls                = require('tls')
-let fs                 = require('fs')
+let fs                 = require('fs');
+let crypto             = require('./encryption');
 let generate_random_id = require('./id_generation');
 let get_socket_by_id   = require('./get_socket_by_id');
 
@@ -10,14 +10,23 @@ let sockets            = [];
 
 let server = net.createServer(socket => {
   socket.id = generate_random_id();
+  socket.status = 'new_connect';
   sockets.push(socket);
-    
- socket.on('data', data => {
-    let date = new Date();
-    console.log(`USER ${date.getHours()}:${date.getMinutes()}> ${data.toString()}`);
-    for(let i = 0; i < sockets.length; i++){
-      if(sockets[i].id !== socket.id) sockets[i].write(data); // Send a message to everyone except the sender
-    }
+  let myECDHKeys = crypto.generateECDHKeys();
+  console.log('Sending public key');
+  socket.write(myECDHKeys.publicKey);
+
+ socket.on('data', async (data) => {
+  switch(socket.status){
+     case 'new_connect':
+        let signature = await crypto.createSignature(data, './priv.pem');
+        socket.status = 'pub_key_rcvd';
+        socket.write(signature);
+        break;
+      case 'pub_key_rcvd':
+        let verifySignature = await crypto.verifySignature(myECDHKeys.publicKey, './client_pub.pem', data);
+        console.log(`Signature verification result: ${verifySignature}`);
+  }
  });
 
  socket.on('close',  () => {
@@ -32,17 +41,23 @@ server.listen(3000, '192.168.0.43');
 
 
 
-
-var options = {
-  key: fs.readFileSync('./certs/chat.key'),
-  cert: fs.readFileSync('./certs/chat.crt')
-};
+ 
 
 
 
 
 
 
+
+/*
+socket.on('data', data => {
+    let date = new Date();
+    console.log(`USER ${date.getHours()}:${date.getMinutes()}> ${data.toString()}`);
+    for(let i = 0; i < sockets.length; i++){
+      if(sockets[i].id !== socket.id) sockets[i].write(data); // Send a message to everyone except the sender
+    }
+ });
+*/
 
 
 
