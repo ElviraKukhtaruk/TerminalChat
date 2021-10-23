@@ -15,22 +15,11 @@ async function getStaticPrivKey(privFileName){
  }
 
 
-/*
-async function getStaticPubKey(privFileName, pubFileName){
-   const readPublicKey = () => util.promisify(fs.readFile)(pubFileName);
-   const readPrivateKey = () => util.promisify(fs.readFile)(privFileName);
-   return {
-      publicKey: await readPublicKey(),
-      privateKey: await readPrivateKey()
-   }
-}
-*/
-
 module.exports.generateECDHKeys = ()=>{
     console.log('Start generating ECDH Keys...');
     const keys = crypto.generateKeyPairSync('x25519');
     const exportedPublicKey = keys.publicKey.export({type: 'spki', format: 'pem'});
-    console.log('ECDH Keys was generated');
+    console.log('ECDH Keys were generated');
     return {
       privateKey: keys.privateKey,
       publicKey: exportedPublicKey
@@ -38,22 +27,22 @@ module.exports.generateECDHKeys = ()=>{
 }
 
 
-module.exports.encryptData = (data)=>{
+module.exports.encryptData = (data, secret)=>{
     IV = crypto.randomBytes(16);
-    let cipher = crypto.createCipheriv('aes-256-gcm', mySecret, IV);
+    let cipher = crypto.createCipheriv('aes-256-gcm', secret, IV);
     let encryptedText = cipher.update(data, 'utf8', 'hex');
         encryptedText += cipher.final('hex');
     let authTag = cipher.getAuthTag();
-    return {
-        iv: iv,
-        authTag: authTag,
-        text: encryptedText
+    return { iv: IV, 
+             authTag: authTag,
+             data: encryptedText
     }
 }
 
 
-module.exports.decryptMyText = (data, authTag, iv)=>{
-   let decipher = crypto.createDecipheriv('aes-256-gcm', otherSecret, iv);
+module.exports.decryptData = (data, secret, authTag, iv)=>{
+   authTag = Buffer.from(authTag), iv = Buffer.from(iv);
+   let decipher = crypto.createDecipheriv('aes-256-gcm', secret, iv);
    decipher.setAuthTag(authTag);
    let decrpyted = decipher.update(data, 'hex', 'utf8');
        decrpyted += decipher.final('utf8');
@@ -61,11 +50,16 @@ module.exports.decryptMyText = (data, authTag, iv)=>{
 }
 
 
-module.exports.generateSecret = (pubKey, privKey)=>{
-    return crypto.diffieHellman({
-        publicKey : crypto.createPublicKey(pubKey),
-        privateKey: privKey
-    });
+module.exports.generateSecret = (verifySignature, pubKey, privKey)=>{
+    if(verifySignature){
+      console.log('Start generating secret...');
+      let secret = crypto.diffieHellman({publicKey : crypto.createPublicKey(pubKey), privateKey: privKey});
+      console.log('Secret was generated');
+      return secret;
+    }else{
+      console.log('The secret was not generated because the signature verification was not successful');
+      return;
+    }
 }
 
 
