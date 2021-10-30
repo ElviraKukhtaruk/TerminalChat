@@ -1,4 +1,1 @@
-pub.pem
-priv.pem
-client_pub.pem
-client_priv.pem
+/server/serverPriv.pem
