@@ -12,10 +12,10 @@ async function getStaticKey(pathToStaticKey){
 
 
 module.exports.generateECDHKeys = () => {
-   console.log('\nStart generating ECDH Keys...');
+   console.log('\n1) Start generating ECDH Keys...');
    let keys = crypto.generateKeyPairSync('x25519');
    let exportedPublicKey = keys.publicKey.export({type: 'spki', format: 'pem'});
-   console.log('ECDH Keys were generated');
+   console.log('- ECDH Keys were generated ✅');
    return { privateKey: keys.privateKey,
             publicKey: exportedPublicKey }
 }
@@ -45,25 +45,17 @@ module.exports.decryptData = (data, secret, authTag, iv)=>{
 
 module.exports.generateSecret = (signatureVerificationResult, publicKey, privateKey)=>{ 
    if(signatureVerificationResult){
-      console.log('Start generating secret...');
+      console.log('4) Start generating secret...');
       let secret = crypto.diffieHellman({publicKey : crypto.createPublicKey(publicKey), privateKey: privateKey});
-      console.log('Secret was generated\n');
+      console.log('- Secret was generated ✅');
       return secret;
    }else console.log('The secret was not generated because the signature verification was not successful');
 }
 
-
-module.exports.createSignature = async(data, pathToStaticPrivateKey)=>{
-   console.log('Creating signature...');
-   let staticPrivateKey = await getStaticKey(pathToStaticPrivateKey);
-   console.log('Signature is created');
-   return crypto.sign(null, Buffer.from(data), staticPrivateKey);
-}
-
 module.exports.verifySignature = async (data, pathToStaticPublicKey, signature)=>{
-   console.log('Verifying signarute...');
+   console.log('3) Verifying signarute...');
    let staticPublicKey = await getStaticKey(pathToStaticPublicKey);
    let verify = crypto.verify(null, data, staticPublicKey, signature);
-   console.log(`Signature verification result: ${verify}`);
+   console.log(`- Signature verification result: ${verify}`);
    return verify;
 }

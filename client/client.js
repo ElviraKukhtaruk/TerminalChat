@@ -1,5 +1,4 @@
-let sendingFormat   = require('./modules/sendingFormat');
-let gettingFormat   = require('./modules/gettingFormat');
+let encryptData   = require('./modules/encryptData');
 let handshake       = require('./modules/handshake');
 
 let SERVER_PUB_KEY  = '';
@@ -16,7 +15,7 @@ try{
   client.on('data', receiveDataFromServer);
   client.on('close', () => console.log('Connection closed'));
 }catch(err){
-  console.log('An error has occurred: '+err);
+  console.log('An error occurred while sending the public key');
 }
 }
 
@@ -27,21 +26,21 @@ let stdin = process.openStdin();
 
 
 function receiveDataFromServer(data){
-try{
-  handshake.ECDH(client, data, myECDHKeys, SERVER_PUB_KEY);
-  if(client.status === 'auth') getDataAfterECDHHandshake(data);
-}catch(err){
-  console.log('An error has occurred: '+err);
-}
+    if(client.status === 'auth') getDataAfterECDHHandshake(data);
+    else handshake.ECDH(client, data, myECDHKeys, SERVER_PUB_KEY);
 }
 
 
 function getDataAfterECDHHandshake(data){
+try{
     let date = new Date();
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
-    console.log(`USER ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}> ${gettingFormat(client, data)}`);
+    console.log(`USER ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}> ${encryptData.get(client, data)}`);
     process.stdout.write(currentUserData);
+}catch(err){
+  console.log('An error occurred while retrieving data from server');
+}
 }
 
 
@@ -59,7 +58,7 @@ try{
  // Enter
  }else if(data === '\u000d'){
    process.stdout.write('\n');
-   client.write(sendingFormat(client, currentUserData));
+   client.write(encryptData.set(client, currentUserData));
    process.stdout.clearLine();
    process.stdout.cursorTo(0);
    currentUserData = '';
@@ -68,7 +67,7 @@ try{
    process.stdout.write(data);
  }
 }catch(err){
-  console.log('An error has occurred: '+err);
+  console.log('An error occurred while processing the entered data or sending data');
 }
 }
     
