@@ -1,18 +1,21 @@
 let net                             = require('net');
-let encryptData                     = require('./encryptData');
-let handshake                       = require('./handshake');
+let format                          = require('./modules/encryptData');
+let handshake                       = require('./modules/handshake');
+let redis                           = require('./redis/setAndGet');
+let timeFormat                      = require('./modules/timeFormat');
+const { get } = require('./redis/redis');
 
 let PATH_TO_SERVER_AUTH_PRIVATE_KEY = './server_priv.pem';
-let sockets                         = [];
+
 
 
 let server = net.createServer(socket => {
 try{
- handshake.sendPublicKey(socket);
+ handshake.getKeysAndSendPublicKey(socket);
 
  socket.on('data', getDataFromUser.bind({socket: socket}));
 
- socket.on('close', socketClose);
+ socket.on('close', socketClose.bind({socket: socket}));
 
  socket.on('error', err => console.log(`Socket error: ${err}`));
 }catch(err){
@@ -23,9 +26,8 @@ try{
 
 
 function getDataFromUser(data){
-  let socket = this.socket;
-  if(socket.status === 'auth') getDataAfterECDHHandshake(data, socket);   
-  else handshake.ECDH(socket, data, PATH_TO_SERVER_AUTH_PRIVATE_KEY, sockets); 
+  if(this.socket.status === 'auth') getDataAfterECDHHandshake(data, this.socket);   
+  else handshake.ECDH(this.socket, data, PATH_TO_SERVER_AUTH_PRIVATE_KEY); 
 }
 
  
@@ -33,12 +35,8 @@ function getDataFromUser(data){
 
 function getDataAfterECDHHandshake(data, socket){
 try{
-  let date = new Date();
-  let decryptedData = encryptData.get(socket, data);
-  console.log(`USER ${date.getHours()}:${date.getMinutes()}> ${decryptedData}`);
-  for(let i = 0; i < sockets.length; i++){
-    if(sockets[i].id !== socket.id) sockets[i].write(encryptData.set(sockets[i], decryptedData));
-  }
+  let decryptedData = format.get(socket, data);
+  console.log(`USER ${timeFormat()}> ${decryptedData}`);
 }catch(err){
   console.log(`${socket.remoteAddress} - ${socket.status} - An error occurred while retrieving data from client: ${err}`);
 }
@@ -46,7 +44,7 @@ try{
 
 function socketClose(socket){
 try{
-  sockets = sockets.filter(socket_obj => socket_obj.id !== socket.id); 
+  redis.delete(this.socket.id);
   console.log('Socket closed');
 }catch(err){
   console.log(`${socket.remoteAddress} - ${socket.status} - An error occured while closing the socket: ${err}`);
