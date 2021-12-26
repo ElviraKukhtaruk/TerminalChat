@@ -1,2 +1,2 @@
-/server/server_priv.pem
+/server/x25519-priv.pem
 conf.js

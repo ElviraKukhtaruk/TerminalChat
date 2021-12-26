@@ -1,4 +1,4 @@
-module.exports = () =>{
+module.exports = () => {
     let date = new Date();
     let minutes = date.getMinutes();
         minutes = minutes < 10 ? "0"+minutes : minutes;
