@@ -1,2 +1,2 @@
-/server/x25519-priv.pem
-conf.js
+/server/configuration/mainConfig.js
+/server/keys/x25519-priv.pem

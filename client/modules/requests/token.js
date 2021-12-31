@@ -1,11 +1,10 @@
 let Request    = require('./Request');
-let timeFormat = require('../others/timeFormat');
-
+let file       = require('../others/AsyncFileOperations');
 
 module.exports = () => {
-    Request.addRequest('message', function(socket, request){
+    Request.addRequest('token', async function(socket, res){
         try {
-           console.log(`USER ${timeFormat()}> ${request.body.message}`);
+            await file.write(`./token/token`, res.body.token);
         } catch(err) {
            console.log(`${socket.remoteAddress} - ${socket.status} - An error occurred while retrieving data from client: ${err}`);
         }

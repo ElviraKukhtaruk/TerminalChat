@@ -1,4 +1,4 @@
-let crypto = require('./encryption');
+let crypto = require('./crypto');
 
 module.exports.decrypt = function(data, isObject){
     let dataObject = JSON.parse(data),
@@ -9,12 +9,7 @@ module.exports.decrypt = function(data, isObject){
 }
 
 module.exports.encrypt = function(data){
+    if(this.status === 'auth') data = JSON.stringify(data);
     let encryptedData = crypto.encryptData(data, this.secret);
-    //return JSON.stringify(encryptedData);
     this.write(JSON.stringify(encryptedData));
 }
-// { type: "message" }
-// { type: "newChat" }
-// { type: "createNewChat" }
-// { type: "leaveChat" }
-// { type: "deleteChat" }

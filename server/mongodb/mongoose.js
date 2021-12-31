@@ -1,12 +1,11 @@
 let mongoose = require('mongoose');
-let config   = require('../conf');
+let config   = require('../configuration/mainConfig');
 
-mongoose.connect(`mongodb://${config.DB.user}:${config.DB.password}@${config.DB.host}:${config.DB.port}/chat`);
+mongoose.connect(`mongodb://${config.DB.user}:${config.DB.password}@${config.DB.host}:${config.DB.port}/chat`, function(err){
+	if (err) console.log(err);
+});
 let db = mongoose.connection;
 
-db.on('error', function(err) {
-   	console.error(err);
-});
 
 db.once('open', function() {
    	console.log('MongoDB is Connected!');

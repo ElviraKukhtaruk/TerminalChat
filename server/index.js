@@ -1,9 +1,13 @@
 let net       = require('net');
-let handshake = require('./modules/handshake');
+let db        = require('./mongodb/mongoose');
+let handshake = require('./ECDHHandshake/handshake');
 let Request   = require('./modules/requests/Request');
-let requests  = require('./modules/requests/chats');
+let chats     = require('./modules/requests/chats');
+let log_in    = require('./modules/requests/log_in');
 
-requests.chats();
+
+chats();
+log_in();
 
 let server = net.createServer(socket => {
 	try {

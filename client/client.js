@@ -1,10 +1,13 @@
-let handshake          = require('./modules/handshake');
+let handshake          = require('./ECDHHanshake/handshake');
 let Request            = require('./modules/requests/Request');
-let requests           = require('./modules/requests/chats'); 
-let getDataFromConsole = require('./modules/getDataFromConsole');
+let chats              = require('./modules/requests/chats'); 
+let token              = require('./modules/requests/token');
+let getDataFromConsole = require('./modules/userData/getDataFromConsole');
 let client;
 
-requests.chats();
+
+token();
+chats();
 
 
 async function connection() {
@@ -25,6 +28,7 @@ async function connection() {
 
 
 function receiveDataFromServer(data) {
+	// When the socket status is "auth" then the user has finished the ECDH handshake
     if(client.status === 'auth') Request.matchRequestType(client, data);
     else handshake.ECDH(client, data);
 }

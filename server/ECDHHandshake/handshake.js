@@ -1,6 +1,6 @@
-let crypto             = require('./encryption');
-let generate_random_id = require('./id_generation');
-let transmission       = require('./transmission');
+let crypto             = require('../modules/cryptographic/crypto');
+let generate_random_id = require('../modules/others/id_generation');
+let transmission       = require('../modules/cryptographic/transmission');
 
 module.exports.newConnection = (socket) => {
    socket.status = 'new_connection';
@@ -15,7 +15,7 @@ module.exports.ECDH = async (socket, data) => {
     	switch(socket.status) {
          case 'new_connection':
             socket.status = 'pub_key_rcvd';
-            let privateStaticKey = await crypto.getPrivateStaticKey('./x25519-priv.pem');
+            let privateStaticKey = await crypto.getPrivateStaticKey('./keys/x25519-priv.pem');
             let preMasterSecret = crypto.generateSecret(data, privateStaticKey);
             // Generate ECDH Keys for master secret
             let ECDHKeys = crypto.generateECDHKeys();

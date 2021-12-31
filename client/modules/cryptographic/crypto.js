@@ -1,15 +1,6 @@
 let crypto = require('crypto');
-let util   = require('util');
-let fs     = require('fs')
 
 let IV;
-
-
-module.exports.getStaticKey = async(pathToStaticKey) => {
-	let readStaticKey = () => util.promisify(fs.readFile)(pathToStaticKey);
-   	return await readStaticKey();
-}
-
 
 module.exports.generateECDHKeys = () => {
    	console.log('~ Start generating ECDH Keys...');

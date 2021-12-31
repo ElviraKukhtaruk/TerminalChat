@@ -1,4 +1,4 @@
-let handshake = require('../handshake');
+let handshake = require('../../ECDHHandshake/handshake');
 
 module.exports = {
 

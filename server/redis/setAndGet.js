@@ -7,13 +7,13 @@ let delAsync      = promisify(redisClient.del).bind(redisClient);
 module.exports.get = async function(){
     return JSON.parse(await getAsync(this.id));
 }
-module.exports.set = async function(obj){
-    let data = await JSON.parse(await getAsync(this.id));
+module.exports.set = async function(key, obj){
+    let data = await JSON.parse(await getAsync(key));
 	if(data) { 
 		for (let [key, value] of Object.entries(obj)) data[key] = value;
-		await setAsync(this.id, JSON.stringify(data));
+		await setAsync(key, JSON.stringify(data));
 	} else { 
-		await setAsync(this.id, JSON.stringify(obj));
+		await setAsync(key, JSON.stringify(obj));
 	}
 }
-module.exports.delete = async function(key){ await delAsync(key); }
+module.exports.delete = async key => await delAsync(key);

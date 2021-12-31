@@ -1,7 +1,7 @@
 let Request    = require('./Request');
-let timeFormat = require('../timeFormat');
+let timeFormat = require('../others/timeFormat');
 
-module.exports.chats = () => {
+module.exports = () => {
 
    Request.addRequest('message', function(socket, request){
       try {
