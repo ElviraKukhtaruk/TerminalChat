@@ -1,13 +1,12 @@
 let crypto = require('crypto');
-let util   = require('util');
-let fs     = require('fs')
+let file   = require('../others/AsyncFileOperations');
 
 let IV;
 
 module.exports.getPrivateStaticKey = async (pathToStaticKey) => {
-   	let readStaticKey = () => util.promisify(fs.readFile)(pathToStaticKey, 'utf-8');
+   	let readStaticKey = await file.read(pathToStaticKey);
    	let staticKey = crypto.createPrivateKey({
-        key: await readStaticKey(),
+        key: readStaticKey,
    	});
    	return staticKey;
 }

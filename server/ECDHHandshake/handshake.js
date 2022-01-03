@@ -1,12 +1,14 @@
 let crypto             = require('../modules/cryptographic/crypto');
 let generate_random_id = require('../modules/others/id_generation');
 let transmission       = require('../modules/cryptographic/transmission');
+let errorResponse      = require('../modules/response/error');
 
 module.exports.newConnection = (socket) => {
    socket.status = 'new_connection';
    socket.id = generate_random_id();
    socket.send = transmission.encrypt;
    socket.get = transmission.decrypt;
+   socket.error = errorResponse;
 	console.log(`\nClient connected: ${socket.remoteAddress}`);
 }
 

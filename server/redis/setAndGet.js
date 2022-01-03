@@ -4,8 +4,8 @@ let setAsync      = promisify(redisClient.set).bind(redisClient);
 let getAsync      = promisify(redisClient.get).bind(redisClient);  
 let delAsync      = promisify(redisClient.del).bind(redisClient);
 
-module.exports.get = async function(){
-    return JSON.parse(await getAsync(this.id));
+module.exports.get = async function(key){
+    return JSON.parse(await getAsync(key));
 }
 module.exports.set = async function(key, obj){
     let data = await JSON.parse(await getAsync(key));
