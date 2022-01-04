@@ -1,2 +1,3 @@
 /server/configuration/mainConfig.js
 /server/keys/x25519-priv.pem
+/node_modules
