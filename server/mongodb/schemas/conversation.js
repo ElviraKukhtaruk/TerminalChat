@@ -1,7 +1,7 @@
 let {Schema, model} = require('mongoose');
 
 const conversation = new Schema({
-    	users: [String] 
+	users: [String] 
 }, { collection: 'conversation' });
 
 

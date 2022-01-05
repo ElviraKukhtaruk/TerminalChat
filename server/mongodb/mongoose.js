@@ -8,7 +8,7 @@ let db = mongoose.connection;
 
 
 db.once('open', function() {
-   	console.log('MongoDB is Connected!');
+	console.log('MongoDB is Connected!');
 });
   
 module.exports = db;
