@@ -1,9 +1,8 @@
 let net          = require('net');
 let db           = require('./mongodb/mongoose');
-let handshake    = require('./ECDHHandshake/handshake');
+let handshake    = require('./handshake/ECDHHandshake');
 let Request      = require('./request/Request');
 let initRequests = require('./request/initRequests');
-
 
 initRequests();
 

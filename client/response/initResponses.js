@@ -1,11 +1,11 @@
 let Response = require('./Response');
 
-let chats    = require('./responses/chats'); 
-let token    = require('./responses/token');
+let chats    = require('./responses/getChats'); 
+let logIn    = require('./responses/logIn');
 let error    = require('./responses/error');
 
 module.exports = () => {
 	Response.addResponse('error', error);
-	Response.addResponse('message', chats);
-	Response.addResponse('token', token);
+	Response.addResponse('get_chats', chats);
+	Response.addResponse('log_in', logIn);
 }

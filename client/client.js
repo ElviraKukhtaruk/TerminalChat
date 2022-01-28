@@ -1,4 +1,4 @@
-let handshake          = require('./ECDHHanshake/handshake');
+let handshake          = require('./handshake/ECDHHandshake');
 let Response           = require('./response/Response');
 let getDataFromConsole = require('./modules/userData/getDataFromConsole');
 let initResponses      = require('./response/initResponses');

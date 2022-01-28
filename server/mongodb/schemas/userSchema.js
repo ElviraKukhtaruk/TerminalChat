@@ -4,7 +4,8 @@ const userSchema = new Schema({
 	username: { type: String, unique: true },
 	password: String,
 	socket_id: { type: String, unique: true },
-	сonversations: Schema.Types.Mixed 
+	userConversations: [String],
+	conversations: [String]
 }, { collection: 'User' });
 
 

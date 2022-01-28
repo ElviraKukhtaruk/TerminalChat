@@ -1,8 +1,10 @@
 let {Schema, model} = require('mongoose');
 
-const conversation = new Schema({
+const Conversation = new Schema({
+	admin: String,
+	name: {type: String, unique: true},
 	users: [String] 
-}, { collection: 'conversation' });
+}, { collection: 'Conversations' });
 
 
-module.exports = model('conversation', conversation);
+module.exports = model('Conversations', Conversation);

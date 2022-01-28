@@ -1,4 +1,5 @@
 let crypto = require('./crypto');
+let file   = require('../AsyncFileOperations');
 
 module.exports.decrypt = function(data, isObject){
 	let dataObject = JSON.parse(data),
@@ -9,7 +10,7 @@ module.exports.decrypt = function(data, isObject){
 }
 
 module.exports.encrypt = function(data){
-	if(this.status === 'auth' || this.status === 'full_auth') data = JSON.stringify(data);
+	if(this.status === 'auth') data = JSON.stringify(data);
 	let encryptedData = crypto.encryptData(data, this.secret);
 	this.write(JSON.stringify(encryptedData));
 }

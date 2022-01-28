@@ -1,9 +1,9 @@
 let Request = require('./Request');
 
-let chats   = require('./requests/chats'); 
+let chats   = require('./requests/getChats'); 
 let logIn   = require('./requests/logIn');
 
 module.exports = () => {
-	Request.addRequest('message', chats);
+	Request.addRequest('get_chats', chats);
 	Request.addRequest('log_in', logIn);
 }
