@@ -1,5 +1,5 @@
-let readline = require('readline');
-let file	 = require('../../../../shared/AsyncFileOperations');
+let readline	  = require('readline');
+let file		  = require('../../../../shared/AsyncFileOperations');
 
 let rl = readline.createInterface({
 	input: process.stdin,
@@ -17,4 +17,5 @@ module.exports = async (client) => {
 		let password = await question('Your password: ');
 		client.send({header: {type: 'log_in'}, body: {username, password} });
 	}	
+	rl.close();
 } 

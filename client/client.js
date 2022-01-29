@@ -12,7 +12,7 @@ async function connection() {
 
    	   await handshake.newConnection(client, this.serverPublicKey);
 
-	   getDataFromConsole(client);
+	  // getDataFromConsole(client);
 
   	   client.on('data', receiveDataFromServer);
 		 
