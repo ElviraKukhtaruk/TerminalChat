@@ -4,7 +4,7 @@ const userSchema = new Schema({
 	username: { type: String, unique: true },
 	password: String,
 	socket_id: { type: String, unique: true },
-	userConversations: [String],
+	ownConversations: [String],
 	conversations: [String]
 }, { collection: 'User' });
 

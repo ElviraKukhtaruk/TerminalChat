@@ -8,17 +8,17 @@ initResponses();
 
 async function connection() {
 	try {
-  	   client = this.client;
+		client = this.client;
 
-   	   await handshake.newConnection(client, this.serverPublicKey);
+		await handshake.newConnection(client, this.serverPublicKey);
+		
+		getDataFromConsole(client);
 
-	  // getDataFromConsole(client);
-
-  	   client.on('data', receiveDataFromServer);
+		client.on('data', receiveDataFromServer);
 		 
-  	   client.on('close', () => console.log('Connection closed'));
+		client.on('close', () => console.log('Connection closed'));
 	} catch(err) {
-  	   console.log(`An error occurred while connecting: ${err}`);
+		console.log(`An error occurred while connecting: ${err}`);
 	}
 }
 
