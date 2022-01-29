@@ -3,11 +3,11 @@ let file         = require('../../shared/AsyncFileOperations');
 let transmission = require('../../shared/cryptographic/transmission');
 let log_in       = require('../modules/auth/logIn/logIn');
 
-module.exports.newConnection = async client => {
+module.exports.newConnection = async (client, publicServerKeyPath) => {
 	// Generate ECDH Keys for pre-master secret
 	let staticECDHKeys = crypto.generateECDHKeys();
 	client.write(staticECDHKeys.publicKey);
-	let publicServerKey = await file.read('./keys/x25519-pub.pem');
+	let publicServerKey = await file.read(publicServerKeyPath);
 	let preMasterSecret = crypto.generateSecret(publicServerKey, staticECDHKeys.privateKey);
 	client.secret = preMasterSecret;
 	client.send = transmission.encrypt;

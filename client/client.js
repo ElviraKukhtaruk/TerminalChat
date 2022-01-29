@@ -10,7 +10,7 @@ async function connection() {
 	try {
   	   client = this.client;
 
-   	   await handshake.newConnection(client);
+   	   await handshake.newConnection(client, this.serverPublicKey);
 
 	   getDataFromConsole(client);
 
