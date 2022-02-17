@@ -1,7 +1,6 @@
-let handshake          = require('./handshake/ECDHHandshake');
-let Response           = require('./response/Response');
-let getDataFromConsole = require('./modules/userData/getDataFromConsole');
-let initResponses      = require('./response/initResponses');
+let handshake = require('./handshake/ECDHHandshake');
+let Response = require('./response/Response');
+let initResponses = require('./response/initResponses');
 let client;
 
 initResponses();
@@ -11,8 +10,6 @@ async function connection() {
 		client = this.client;
 
 		await handshake.newConnection(client, this.serverPublicKey);
-		
-		getDataFromConsole(client);
 
 		client.on('data', receiveDataFromServer);
 		 

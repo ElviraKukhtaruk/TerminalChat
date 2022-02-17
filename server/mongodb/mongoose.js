@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let config   = require('../configuration/mainConfig');
+let config = require('../configuration/mainConfig');
 
 mongoose.connect(`mongodb://${config.DB.user}:${config.DB.password}@${config.DB.host}:${config.DB.port}/chat`, function(err){
 	if (err) console.log(err);

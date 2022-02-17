@@ -1,6 +1,7 @@
-let User			  = require('../../mongodb/schemas/userSchema'); 
+let User = require('../../mongodb/schemas/userSchema'); 
 let { generateToken } = require('../../../shared/cryptographic/crypto');
-let redis			  = require('../../redis/setAndGet');
+let redis = require('../../redis/setAndGet');
+let error = require('./error');
 
 module.exports = async (socket, req) => {
 	try {
@@ -10,11 +11,10 @@ module.exports = async (socket, req) => {
 			socket.send({header: {type: 'log_in'}, body: {} });
 		} else if(user && user.password === req.body.password) {
 			socket.token = await generateToken(); 
-			await redis.set(socket.token, {user_id: user._id, socket_id: socket.id});
+			await redis.set(socket.token, {user_id: user._id});
 			socket.send({header: {type: 'log_in'}, body: {token: socket.token} });
 		} else socket.error('Invalid username/password or your token has expired', req.header.type);
 	} catch(err) {
-		console.log(`${socket.remoteAddress} - ${socket.status} An error occurred while receiving data, type: ${req.header.type}: ${err}`);
-		socket.error('Check the correctness of the sent data', req.header.type);
+		error(socket, req, err);
 	}
 }

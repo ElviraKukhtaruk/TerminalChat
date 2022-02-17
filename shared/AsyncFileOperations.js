@@ -1,4 +1,4 @@
-let fs   = require('fs');
+let fs = require('fs');
 let util = require('util');
 
 

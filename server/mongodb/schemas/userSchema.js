@@ -3,7 +3,6 @@ let {Schema, model} = require('mongoose');
 const userSchema = new Schema({
 	username: { type: String, unique: true },
 	password: String,
-	socket_id: { type: String, unique: true },
 	ownConversations: [String],
 	conversations: [String]
 }, { collection: 'User' });

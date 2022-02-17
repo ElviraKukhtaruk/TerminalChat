@@ -1,5 +1,5 @@
 let crypto = require('crypto');
-let file   = require('../AsyncFileOperations');
+let file = require('../AsyncFileOperations');
 
 let IV;
 

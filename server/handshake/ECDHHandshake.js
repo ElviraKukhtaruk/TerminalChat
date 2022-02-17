@@ -1,6 +1,7 @@
-let crypto        = require('../../shared/cryptographic/crypto');
-let transmission  = require('../../shared/cryptographic/transmission');
+let crypto = require('../../shared/cryptographic/crypto');
+let transmission = require('../../shared/cryptographic/transmission');
 let errorResponse = require('../modules/response/error');
+let Socket = require("../modules/sockets/Socket");
 
 module.exports.newConnection = (socket) => {
 	socket.status = 'new_connection';
@@ -8,6 +9,7 @@ module.exports.newConnection = (socket) => {
 	socket.send = transmission.encrypt;
 	socket.get = transmission.decrypt;
 	socket.error = errorResponse;
+	Socket.addSocket(socket.id, socket);
 	console.log(`\nClient connected: ${socket.remoteAddress}`);
 }
 
