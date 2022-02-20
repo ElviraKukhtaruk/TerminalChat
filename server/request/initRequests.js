@@ -14,5 +14,7 @@ module.exports = () => {
 	Request.addRequest('remove_user', conversations.removeUser);
 	Request.addRequest('create_chat', conversations.createChat);
 	Request.addRequest('remove_chat', conversations.removeChat);
+	Request.addRequest('goto_chat', messages.gotoChat);
+	Request.addRequest('exit_chat', conversations.exitChat);
 	Request.addRequest('send_message', messages.sendMessage);
 }

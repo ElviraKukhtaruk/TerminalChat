@@ -1,5 +1,6 @@
 let net = require('net');
 let db = require('./mongodb/mongoose');
+let redis = require('./redis/setAndGet');
 let handshake = require('./handshake/ECDHHandshake');
 let Request = require('./request/Request');
 let initRequests = require('./request/initRequests');
@@ -13,7 +14,7 @@ let server = net.createServer(socket => {
 
 		socket.on('data', getDataFromUser.bind({ socket: socket }));
 
-		socket.on('close', () => Socket.deleteSocket(socket.id));
+		socket.on('close', () => Socket.deleteSocket(socket));
 
 		socket.on('error', err => console.log(`Socket error: ${err}`));
 	} catch(err) {
@@ -32,6 +33,21 @@ function getDataFromUser(data){
 		if (this.socket.status === 'auth') this.socket.error('Error during data validation on the server');
 	}
 }
+
+process.on('SIGINT',  async () => {
+	// Delete all chats from redis
+	console.log('\nDeleting all chats from redis...');
+	let dbSize = await redis.dbSize();
+    if(dbSize){ 
+		let allSocketId = await redis.scan(0, 'socketId:*', `${dbSize}`, 'string');
+		// We select only keys (i != 0) - because the first element is the length of the database.
+		await Promise.all(allSocketId.map(async (socket, i) => i != 0 && socket.length ? await redis.delete(socket) : null));
+		let allChats = await redis.scan(0, '*', `${dbSize}`, 'set');
+		await Promise.all(allChats.map(async (chat, i) => i != 0 && chat.length ? await redis.delete(chat) : null));
+	}
+	console.log('All chats have been deleted');
+    process.exit();
+});
 
 
 server.listen(3000, '127.0.0.1');

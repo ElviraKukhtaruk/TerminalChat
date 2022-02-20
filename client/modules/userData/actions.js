@@ -23,8 +23,11 @@ module.exports = (client, action, value, value2) => {
         case 'removeChat':
             client.send({header: {type: 'remove_chat'}, body: {chat: value} });
             break;
+        case 'goto':
+            client.send({header: {type: 'goto_chat'}, body: {chat: value} });
+            break;
         case 'sendMessage':
-            client.send({header: {type: 'send_message'}, body: {chat: value, message: value2} });
+            client.send({header: {type: 'send_message'}, body: {text: value} });
             break;
         default:
             console.log(`Action "${action}" not found`);

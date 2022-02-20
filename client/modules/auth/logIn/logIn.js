@@ -1,6 +1,6 @@
 let readline = require('readline');
 let file = require('../../../../shared/AsyncFileOperations');
-let getDataFromConsole = require('../../userData/getDataFromConsole');
+let getData = require('../../userData/getData');
 
 
 let rl = readline.createInterface({
@@ -20,5 +20,5 @@ module.exports = async (client) => {
 		client.send({header: {type: 'log_in'}, body: {username, password} });
 	}	
 	rl.close();
-	getDataFromConsole(client);
+	getData.getDataFromConsole(client);
 } 

@@ -2,8 +2,9 @@ let crypto = require('../../shared/cryptographic/crypto');
 let transmission = require('../../shared/cryptographic/transmission');
 let errorResponse = require('../modules/response/error');
 let Socket = require("../modules/sockets/Socket");
+let reids = require('../redis/setAndGet');
 
-module.exports.newConnection = (socket) => {
+module.exports.newConnection = async (socket) => {
 	socket.status = 'new_connection';
 	socket.id = crypto.generateRandomId();
 	socket.send = transmission.encrypt;

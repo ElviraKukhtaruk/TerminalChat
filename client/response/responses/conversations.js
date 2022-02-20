@@ -8,12 +8,10 @@ module.exports.showStatus = (socket, res) => {
 
 module.exports.getChats = (socket, res) => {
 	try {
-		let indexOfAllChats = 0;
 		let allChats = res.body.conversations.map((conversation, i) => conversation);
 		console.log('\nYour Chats: ');
-		let ownChats = res.body.ownConversations.map((conversation, i) => `${conversation} (Admin)`);
-		let allChatsAndOwnChats = allChats.concat(ownChats).filter(item => item !== null);
-		allChatsAndOwnChats.forEach((elem, i) => console.log(`${i}) ${elem}`));
+		let ownChats = res.body.ownConversations.map((conversation, i) => `${conversation}`);
+		allChats.forEach((elem, i) => ownChats.includes(elem) ? console.log(`${i}) ${elem} (Admin)`) : console.log(`${i}) ${elem}`));
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
