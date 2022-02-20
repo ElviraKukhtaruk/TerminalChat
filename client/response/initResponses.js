@@ -8,7 +8,11 @@ module.exports = () => {
 	Response.addResponse('error', error);
 	Response.addResponse('get_chats', conversations.getChats);
 	Response.addResponse('log_in', logIn);
-	Response.addResponse('add_user_to_chat', conversations.showStatus);
-	Response.addResponse('delete_user_from_chat', conversations.showStatus);
+	Response.addResponse('join_chat', conversations.showStatus);
+	Response.addResponse('leave_chat', conversations.showStatus);
 	Response.addResponse('newUsers', conversations.getNewUsers);	
+	Response.addResponse('add_user', conversations.showStatus);
+	Response.addResponse('remove_user', conversations.showStatus);
+	Response.addResponse('create_chat', conversations.showStatus);
+	Response.addResponse('remove_chat', conversations.showStatus);
 }

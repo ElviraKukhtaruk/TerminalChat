@@ -1,10 +1,10 @@
 let {Schema, model} = require('mongoose');
 
 const Conversation = new Schema({
-	admin: String,
-	name: {type: String, unique: true},
-	users: [String],
-	newUsers: [String]
+	admin: {type: String, ref: 'User'},
+	name: {type: String, unique: true, required: true},
+	users: {type: [String], ref: 'User'},
+	newUsers: {type: [String], ref: 'User'}
 }, { collection: 'Conversations' });
 
 

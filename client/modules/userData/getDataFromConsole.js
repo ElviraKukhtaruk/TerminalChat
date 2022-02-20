@@ -1,10 +1,16 @@
 let actions = require('./actions');
-let currentUserData = '', client;
+let currentUserData = '', client, isChat = false, chatName = '';
 
 function getDataFromConsole(data){
 	try{
 		// Ctrl+c
-		if(data === '\u0003') process.exit();
+		if(data === '\u0003'){ 
+			if(isChat){ 
+				console.log('Exit');
+				process.stdout.clearLine(), process.stdout.cursorTo(0);
+				isChat = false, chatName = '', currentUserData = '';
+			} else process.exit();
+		}
 		// Backspace
 		if(data.charCodeAt(0) === 127) { 
 			// Remove last character from string
@@ -15,9 +21,16 @@ function getDataFromConsole(data){
 		// Enter
 		} else if(data === '\u000d') {
 			process.stdout.write('\n');
-			let action = currentUserData.split(' ')[0], value = currentUserData.split(' ')[1];
-			currentUserData = '', process.stdout.clearLine(), process.stdout.cursorTo(0);
-			actions(client, action, value);
+			let action = currentUserData.split(' ')[0], value = currentUserData.split(' ')[1],
+			value2 = currentUserData.split(' ')[2];
+			process.stdout.clearLine(), process.stdout.cursorTo(0);
+			if(action == 'goto' && isChat == false) isChat = true, chatName = value;
+			else if(isChat) actions(client, 'sendMessage', chatName, currentUserData);
+			else { 
+				if(action == "goto") console.log("Yes");
+				actions(client, action, value, value2);
+			}
+			currentUserData = '';
 		} else {
 			currentUserData += data;
 			process.stdout.write(data);
