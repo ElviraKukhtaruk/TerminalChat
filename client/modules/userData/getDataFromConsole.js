@@ -10,9 +10,8 @@ function getDataFromConsole(data){
 				process.stdout.clearLine(), process.stdout.cursorTo(0);
 				isChat = false, chatName = '', currentUserData = '';
 			} else process.exit();
-		}
 		// Backspace
-		if(data.charCodeAt(0) === 127) { 
+		} else if(data.charCodeAt(0) === 127) { 
 			// Remove last character from string
 			currentUserData = currentUserData.slice(0, -1); 
 			process.stdout.clearLine();
