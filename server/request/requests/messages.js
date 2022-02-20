@@ -28,7 +28,7 @@ module.exports.sendMessage = async (socket, req, session) => {
             members.forEach(async member => {
                 let findSocket = Socket.getSocket(member);
                 if(socket.id != findSocket.id) findSocket.send({header: {type: 'message'}, body: {
-                        username: user.username, text: req.body.text
+                    username: user.username, text: req.body.text
                 }});   
             });
         } else socket.error('You are not a member of this chat', req.header.type);

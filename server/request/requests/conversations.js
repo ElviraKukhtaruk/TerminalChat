@@ -88,8 +88,8 @@ module.exports.removeUser = async (socket, req, session) => {
 	try {
 		let user = await User.findOne({username: req.body.user}), chat = await Conversation.findOne({name: req.body.chat});
 		if(user && chat && session.user_id == chat.admin){ 
-			let findUserSocketId = await redis.get(`socketId:${user._id.toString()}`);
-			if(findUserSocketId.socket_id) await redis.srem(req.body.chat, findUserSocketId.socket_id);
+			let findUser = await User.findOne({username: req.body.user});
+			await redis.srem(req.body.chat, findUser.socket_id);
 			chat = await Conversation.findOneAndUpdate({name: req.body.chat}, {$pull: {users: user._id}});
 			await User.findOneAndUpdate({username: req.body.user}, {$pull: {conversations: chat._id}});
 			socket.send({header: {type: req.header.type}, body: {message: 'The user has been successfully removed from the chat'}});

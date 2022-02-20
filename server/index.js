@@ -39,10 +39,8 @@ process.on('SIGINT',  async () => {
 	console.log('\nDeleting all chats from redis...');
 	let dbSize = await redis.dbSize();
     if(dbSize){ 
-		let allSocketId = await redis.scan(0, 'socketId:*', `${dbSize}`, 'string');
-		// We select only keys (i != 0) - because the first element is the length of the database.
-		await Promise.all(allSocketId.map(async (socket, i) => i != 0 && socket.length ? await redis.delete(socket) : null));
 		let allChats = await redis.scan(0, '*', `${dbSize}`, 'set');
+		// We select only keys (i != 0) - because the first element is the length of the database.
 		await Promise.all(allChats.map(async (chat, i) => i != 0 && chat.length ? await redis.delete(chat) : null));
 	}
 	console.log('All chats have been deleted');
