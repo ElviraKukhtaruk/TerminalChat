@@ -15,9 +15,10 @@ module.exports = async (client) => {
 	if(token && await question('\nUse your token? (y/n) ') === 'y') {
 		client.send({header: {type: 'log_in'}, body: {token} });
 	} else {
+		let request_type = await question('\nLogin or Registration? (l/r) ') == 'l' ? 'log_in' : 'registration';
 		let username = await question('Your username: ');
 		let password = await question('Your password: ');
-		client.send({header: {type: 'log_in'}, body: {username, password} });
+		client.send({header: {type: request_type}, body: {username, password} });
 	}	
 	rl.close();
 	getData.getDataFromConsole(client);

@@ -1,5 +1,24 @@
+const help = `
+--------------------------
+Join chat: join <chat name>
+Leave chat: leave <chat name>
+Show users who want to join your chat: show newUsers
+Show your chats: show myChats
+Show all available chats: show allChats
+Add user to the chat: addUser <username> <chat name>
+Remove user from chat: removeUser <username> <chat name>
+Create chat: createChat <chat name>
+Remove chat: removeChat <chat name>
+Select chat: goto <chat name>
+--------------------------
+`;
+
+
 module.exports = (client, action, value, value2) => {
     switch(action){
+        case 'help':
+            console.log(help);
+            break;
         case 'join':
             client.send({header: {type: 'join_chat'}, body: {conversation_name: value} });
             break;
@@ -7,7 +26,7 @@ module.exports = (client, action, value, value2) => {
             client.send({header: {type: 'leave_chat'}, body: {chat: value} });
             break;
         case 'show':
-            if(value == 'newUsers' || value == 'globalChats') {
+            if(value == 'newUsers' || value == 'allChats' || value == 'myChats') {
                 client.send({header: {type: value}, body: {conversation_name: value} });
             } else console.log(`Value "${value}" not found`);
             break;

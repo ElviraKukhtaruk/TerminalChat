@@ -6,12 +6,20 @@ module.exports.showStatus = (socket, res) => {
 	}
 }
 
-module.exports.getChats = (socket, res) => {
+module.exports.allChats = (socket, res) => {
 	try {
-		let allChats = res.body.conversations.map((conversation, i) => conversation);
+		res.body.conversations.forEach((chat_name, i) => console.log(`${i}) ${chat_name}`));
+	} catch(err) {
+		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
+	}
+}
+
+module.exports.getUsersChats = (socket, res) => {
+	try {
+		let allChats = res.body.conversations.map(conversation  => conversation);
 		console.log('\nYour Chats: ');
-		let ownChats = res.body.ownConversations.map((conversation, i) => `${conversation}`);
-		allChats.forEach((elem, i) => ownChats.includes(elem) ? console.log(`${i}) ${elem} (Admin)`) : console.log(`${i}) ${elem}`));
+		let ownChats = res.body.ownConversations.map(conversation => `${conversation}`);
+		allChats.forEach((chat, i) => ownChats.includes(chat) ? console.log(`${i}) ${chat} (Admin)`) : console.log(`${i}) ${chat}`));
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
@@ -20,7 +28,7 @@ module.exports.getChats = (socket, res) => {
 module.exports.getNewUsers = (socket, res) => {
 	try {
 		let newUsers = res.body.newUsers;
-		newUsers.forEach( users => {
+		newUsers.forEach(users => {
 			for (const property in users) console.log(`User: ${property}, Chat: ${users[property]}`);
 		});		
 	} catch(err) {

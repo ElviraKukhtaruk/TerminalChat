@@ -34,13 +34,12 @@ function getDataFromUser(data){
 	}
 }
 
-process.on('SIGINT',  async () => {
-	// Delete all chats from redis
+process.on('SIGINT', async () => {
 	console.log('\nDeleting all chats from redis...');
 	let dbSize = await redis.dbSize();
     if(dbSize){ 
 		let allChats = await redis.scan(0, '*', `${dbSize}`, 'set');
-		// We select only keys (i != 0) - because the first element is the length of the database.
+		// Select only keys (i != 0) - because the first element is the length of the database.
 		await Promise.all(allChats.map(async (chat, i) => i != 0 && chat.length ? await redis.delete(chat) : null));
 	}
 	console.log('All chats have been deleted');
@@ -48,4 +47,4 @@ process.on('SIGINT',  async () => {
 });
 
 
-server.listen(3000, '127.0.0.1');
+server.listen(3000, '0.0.0.0');

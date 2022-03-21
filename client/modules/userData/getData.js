@@ -3,11 +3,10 @@ let currentUserData = '', client, isChat = false, chatName = '';
 
 function getDataFromConsole(data){
 	try{
-		// Ctrl+c
+		// Ctrl+C (exit)
 		if(data.charCodeAt(0) === 3){ 
 			if(isChat){ 
 				console.log('Exit');
-				process.stdout.clearLine(), process.stdout.cursorTo(0);
 				client.send({header: {type: 'exit_chat'}, body: {chat: chatName} });
 				isChat = false, chatName = '', currentUserData = '';
 				delete client.currentChat;

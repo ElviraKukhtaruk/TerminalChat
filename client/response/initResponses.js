@@ -7,11 +7,13 @@ let messages = require('./responses/messages');
 
 module.exports = () => {
 	Response.addResponse('error', error);
-	Response.addResponse('get_chats', conversations.getChats);
 	Response.addResponse('log_in', logIn);
+	Response.addResponse('registration', logIn);
 	Response.addResponse('join_chat', conversations.showStatus);
 	Response.addResponse('leave_chat', conversations.showStatus);
-	Response.addResponse('newUsers', conversations.getNewUsers);	
+	Response.addResponse('myChats', conversations.getUsersChats);
+	Response.addResponse('newUsers', conversations.getNewUsers);
+	Response.addResponse('allChats', conversations.allChats);
 	Response.addResponse('add_user', conversations.showStatus);
 	Response.addResponse('remove_user', conversations.showStatus);
 	Response.addResponse('create_chat', conversations.showStatus);

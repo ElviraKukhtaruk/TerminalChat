@@ -19,6 +19,13 @@ module.exports.generateToken = async () => {
 	}); 
 }
 
+module.exports.hash = async (text, salt) => {
+	if(!salt) salt = crypto.randomBytes(16).toString('hex');
+	return new Promise((resolve, reject) => { 
+		crypto.scrypt(text, salt, 64, (err, drivedKey) => err ? reject(err) : resolve({hash: drivedKey.toString('hex'), salt: salt}));
+	});
+}
+
 module.exports.generateECDHKeys = () => {
 	console.log('~ Start generating ECDH Keys...');
 	let keys = crypto.generateKeyPairSync('x25519');
