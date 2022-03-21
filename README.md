@@ -9,6 +9,9 @@ For clients:
 ```
 openssl pkey -in x25519-priv.pem -pubout -out x25519-pub.pem
 ```
+### Path to private server key
+/server/keys/x25519-priv.pem
+
 ## 2. Create a file where the user's token will be stored
  
 ### Path to the user's token
@@ -17,7 +20,7 @@ openssl pkey -in x25519-priv.pem -pubout -out x25519-pub.pem
 ## 3. Connect with node:
 
 ```
-node bin.js host port path_to_server_public_key
+node bin.js host port path_to_public_server_key
 ```
 
 Example:
