@@ -82,9 +82,22 @@ module.exports.getNewUsers = async (socket, req, session) => {
 	}
 }
 
+module.exports.getAllUsers = async (socket, req, session) => {
+	try {
+		let user = await User.findById(session.user_id);
+		let conversation = await Conversation.findOne({name: req.body.conversation_name}).populate('users'), users = [];
+		if(conversation && user.conversations.includes(conversation._id)) {
+			await Promise.all(conversation.users.map(async user => users.push(user.username)));
+			socket.send({header: {type: req.header.type}, body: {users: users}});
+		} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
+	} catch(err) {
+		error(socket, req, err);
+	}
+}
+
 module.exports.getAllChats = async (socket, req, session) => {
 	try {
-		let allChats = await Conversation.find({}).skip(0).limit(20), allChatsArray = allChats.map(conversation => conversation.name);
+		let allChats = await Conversation.find({}), allChatsArray = allChats.map(conversation => conversation.name);
 		socket.send({header: {type: req.header.type}, body: {conversations: allChatsArray} });
 	} catch(err) {
 		error(socket, req, err);
@@ -94,7 +107,7 @@ module.exports.getAllChats = async (socket, req, session) => {
 module.exports.addUser = async (socket, req, session) => {
 	try {
 		let user = await User.findOne({username: req.body.user}), chat = await Conversation.findOne({name: req.body.chat});
-		let isUserInNewUsersList = user ? chat.newUsers.includes(user._id) : false;
+		let isUserInNewUsersList = user && chat ? chat.newUsers.includes(user._id) : false;
 		if(chat && isUserInNewUsersList && session.user_id == chat.admin){ 
 
 			await Conversation.findOneAndUpdate({name: req.body.chat}, {$addToSet: {users: user._id}});

@@ -14,6 +14,14 @@ module.exports.allChats = (socket, res) => {
 	}
 }
 
+module.exports.getAllUsers = (socket, res) => {
+	try {
+		res.body.users.forEach((username, i) => console.log(`${i}) ${username}`));
+	} catch(err) {
+		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
+	}
+}
+
 module.exports.getUsersChats = (socket, res) => {
 	try {
 		let allChats = res.body.conversations.map(conversation  => conversation);

@@ -1,7 +1,7 @@
 let crypto = require('../../shared/cryptographic/crypto');
 let file = require('../../shared/AsyncFileOperations');
 let transmission = require('../../shared/cryptographic/transmission');
-let log_in = require('../modules/auth/logIn/logIn');
+let log_in = require('../modules/auth/logIn');
 
 module.exports.newConnection = async (client, publicServerKeyPath) => {
 	// Generate ECDH Keys for pre-master secret
