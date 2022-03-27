@@ -1,5 +1,4 @@
 let crypto = require('./crypto');
-let file = require('../AsyncFileOperations');
 
 module.exports.decrypt = function(data, isObject){
 	let dataObject = JSON.parse(data),

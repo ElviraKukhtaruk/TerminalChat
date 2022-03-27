@@ -16,13 +16,11 @@ module.exports.getDataFromConsole = function(data){
 			case 127:
 				// Remove last character from string
 				currentUserData = currentUserData.slice(0, -1); 
-				process.stdout.clearLine();
-				process.stdout.cursorTo(0);
+				process.stdout.clearLine(); process.stdout.cursorTo(0);
 				process.stdout.write(currentUserData);
 				break;
 			// Enter
 			case 13:
-				process.stdout.write('\n');
 				let parameters = currentUserData.split(' ');
 				if(parameters[0] == 'goto' && isChat == false ){ 
 					isChat = true, chatName = parameters[1];

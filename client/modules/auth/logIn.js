@@ -14,16 +14,26 @@ module.exports = async (client) => {
 
 		let question = query => new Promise(resolve => rl.question(query, resolve));
 
-		let useToken = await question('\nUse your token? (y/n) ');
-		if(useToken === 'y') {
+		let useToken = await question('\nUse your token? (yes/no) ');
+		useToken = useToken.toLowerCase();
+		let answerYes = ['yes', 'y'], answerNo = ['no', 'n'], answerLogin = ['login', 'l'], answerRegister = ['register', 'r'];
+		
+
+		if(answerYes.includes(useToken)) {
 			let token = await file.read('./token');
 			client.send({header: {type: 'log_in'}, body: {token} });
-		} else {
-			let request_type = await question('\nLogin or Registration? (l/r) ') == 'r' ? 'registration' : 'log_in';
-			let username = await question('Your username: ');
-			let password = await question('Your password: ');
-			client.send({header: {type: request_type}, body: {username, password} });
-		}	
+		} else if(answerNo.includes(useToken)){
+			let request_type = await question('\nLogin or Register? (l/r) ');
+			request_type = request_type.toLowerCase();
+			login = answerLogin.includes(request_type) ? 'log_in' : false;
+			register = answerRegister.includes(request_type) ? 'registration' : false;
+			if(login || register) {
+				let username = await question('Your username: ');
+				let password = await question('Your password: ');
+				client.send({header: {type: login || register}, body: {username, password} });
+			} else console.log('Please answer login or register');
+		} else console.log('Please answer yes or no.');
+	
 		rl.close();
 
 		dataCallback = getDataFromConsole.bind({client: client});

@@ -15,6 +15,7 @@ module.exports = () => {
 	Response.addResponse('newUsers', conversations.getNewUsers);
 	Response.addResponse('allChats', conversations.allChats);
 	Response.addResponse('showUsers', conversations.getAllUsers);
+	Response.addResponse('showOnline', conversations.getAllUsers);
 	Response.addResponse('add_user', conversations.showStatus);
 	Response.addResponse('remove_user', conversations.showStatus);
 	Response.addResponse('create_chat', conversations.showStatus);

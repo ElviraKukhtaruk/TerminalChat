@@ -3,13 +3,14 @@ let User = require('../../mongodb/schemas/userSchema');
 let error = require('./error');
 let redis = require('../../redis/setAndGet');
 let Socket = require('../../modules/sockets/Socket');
-const conversation = require('../../mongodb/schemas/conversation');
 
 module.exports.joinChat = async (socket, req, session) => {
 	try {
-        let conversation = await Conversation.findOneAndUpdate({name: req.body.conversation_name}, {$addToSet: {newUsers: session.user_id }});
-        if (conversation) socket.send({header: {type: req.header.type}, body: {message: `The request was sent to the admin`} });
-		else socket.error('The chat was not found', req.header.type);
+		let conversation = await Conversation.findOne({name: req.body.conversation_name});
+		if(conversation && !conversation.users.includes(session.user_id)) {
+        	await Conversation.findOneAndUpdate({name: req.body.conversation_name}, {$addToSet: {newUsers: session.user_id }});
+        	socket.send({header: {type: req.header.type}, body: {message: `The request was sent to the admin`} });
+		} else socket.error('The chat was not found or you are already a member of this chat', req.header.type);
 	} catch(err) {
 		error(socket, req, err);
 	}
@@ -32,7 +33,6 @@ module.exports.exitChat = async (socket, req, session) => {
 	try {
 		let chat = await Conversation.findOne({name: req.body.chat});
 		if(chat) await redis.srem(req.body.chat, socket.id);
-		else socket.error('The chat was not found', req.header.type);
 	} catch(err) {
 		error(socket, req, err);
 	}
@@ -72,10 +72,10 @@ module.exports.getNewUsers = async (socket, req, session) => {
 	try {
 		let ownConversations = await Conversation.find({admin: session.user_id}).populate('newUsers'), newUsers = [];
 		// Get each of the admin's chats
-		await Promise.all(ownConversations.map(async chats => { 
+		ownConversations.map(chat => { 
 			// Then find all the users who want to join admin's chat
-			await Promise.all(chats.newUsers.map(async user => newUsers.push({[user.username]: chats.name} )));
-		}));
+			chat.newUsers.map(user => newUsers.push({[user.username]: chat.name} ));
+		});
 		socket.send({header: {type: req.header.type}, body: {newUsers}});
 	} catch(err) {
 		error(socket, req, err);
@@ -85,9 +85,27 @@ module.exports.getNewUsers = async (socket, req, session) => {
 module.exports.getAllUsers = async (socket, req, session) => {
 	try {
 		let user = await User.findById(session.user_id);
-		let conversation = await Conversation.findOne({name: req.body.conversation_name}).populate('users'), users = [];
+		let conversation = await Conversation.findOne({name: req.body.conversation_name}).populate('users');
 		if(conversation && user.conversations.includes(conversation._id)) {
-			await Promise.all(conversation.users.map(async user => users.push(user.username)));
+			let users = conversation.users.map(user => user.username);
+			socket.send({header: {type: req.header.type}, body: {users: users}});
+		} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
+	} catch(err) {
+		error(socket, req, err);
+	}
+}
+
+module.exports.getAllOnlineUsers = async (socket, req, session) => {
+	try {
+		let user = await User.findById(session.user_id);
+		let conversation = await Conversation.findOne({name: req.body.conversation_name});
+		if(conversation && user.conversations.includes(conversation._id)) {
+
+			let onlineUsers = await redis.smembers(req.body.conversation_name);
+			let users = await Promise.all(onlineUsers.map(async socket_id => {
+				let onlineUser = await User.findOne({socket_id: socket_id});
+				return onlineUser.username;
+			}));
 			socket.send({header: {type: req.header.type}, body: {users: users}});
 		} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
 	} catch(err) {
@@ -142,15 +160,19 @@ module.exports.removeUser = async (socket, req, session) => {
 
 module.exports.createChat = async (socket, req, session) => {
 	try {
-		let chat = new Conversation({
-			admin: session.user_id,
-			name: req.body.chat,
-			users: [session.user_id],
-			newUsers: []
-		});
-		let newDocument = await chat.save();
-		await User.findByIdAndUpdate(session.user_id, {$addToSet: {conversations: newDocument._id}});
-		socket.send({header: {type: req.header.type}, body: {message: 'The chat has been created'}});
+		let name = req.body.chat;
+		let onlyLettersNumbersUnderscore = name.length <= 20 && name.length >= 1 ? /^\w+$/.test(name) : false;
+		if(onlyLettersNumbersUnderscore && name.trim().length !== 0) {
+			let chat = new Conversation({
+				admin: session.user_id,
+				name: name,
+				users: [session.user_id],
+				newUsers: []
+			});
+			let newDocument = await chat.save();
+			await User.findByIdAndUpdate(session.user_id, {$addToSet: {conversations: newDocument._id}});
+			socket.send({header: {type: req.header.type}, body: {message: 'The chat has been created'}});
+		} else socket.error('Choose a name 1-20 characters long. Name can contain only letters, numbers or underline', req.header.type);
 	} catch(err) {
 		err.code === 11000 ? socket.error('A chat with this name already exists', req.header.type) : error(socket, req, err);
 	}
@@ -161,7 +183,11 @@ module.exports.removeChat = async (socket, req, session) => {
 		let chat = await Conversation.findOne({name: req.body.chat});
 		if(chat.admin == session.user_id){ 
 			await redis.delete(req.body.chat);
-			await Promise.all(chat.users.map(async user => await User.findByIdAndUpdate(user._id, {$pull: {conversations: chat._id} })));
+
+			await Promise.all(chat.users.map(async user => { 
+				await User.findByIdAndUpdate(user, {$pull: {conversations: chat._id} });
+			}));
+
 			await Conversation.findByIdAndDelete(chat._id);
 			await User.findByIdAndUpdate(session.user_id, { $pull: {conversations: chat._id} });
 			socket.send({header: {type: req.header.type}, body: {message: 'The chat has been deleted'}});

@@ -5,6 +5,7 @@ Leave chat: leave <chat name>
 Show users who want to join your chat: show newUsers
 Show your chats: show myChats
 Show all available chats: show allChats
+Show all online users: chat showOnline <chat name>
 Show all users in chat: chat showUsers <chat name>
 Add user to the chat: addUser <username> <chat name>
 Remove user from the chat: removeUser <username> <chat name>
@@ -16,6 +17,12 @@ Select chat: goto <chat name>
 
 
 module.exports = (client, action, value, value2) => {
+
+    if(action == 'sendMessage') {
+        process.stdout.clearLine(); process.stdout.cursorTo(0);
+        process.stdout.write(`\x1b[33mYou >> ${value}\x1b[0m\n`)
+    } else process.stdout.write('\n');
+
     switch(action){
         case 'help':
             console.log(help);
@@ -27,7 +34,7 @@ module.exports = (client, action, value, value2) => {
             client.send({header: {type: 'leave_chat'}, body: {chat: value} });
             break;
         case 'chat':
-            if(value == 'showUsers') client.send({header: {type: value}, body: {conversation_name: value2} });
+            if(value == 'showUsers' || value == 'showOnline') client.send({header: {type: value}, body: {conversation_name: value2} });
             else console.log(`Value "${value}" not found`);
             break;
         case 'show':

@@ -14,6 +14,7 @@ module.exports = () => {
 	Request.addRequest('newUsers', conversations.getNewUsers);
 	Request.addRequest('allChats', conversations.getAllChats);
 	Request.addRequest('showUsers', conversations.getAllUsers);
+	Request.addRequest('showOnline', conversations.getAllOnlineUsers);
 	Request.addRequest('add_user', conversations.addUser);
 	Request.addRequest('remove_user', conversations.removeUser);
 	Request.addRequest('create_chat', conversations.createChat);

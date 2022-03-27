@@ -17,11 +17,10 @@ module.exports.set = async (key, obj) =>{
 	let data = await JSON.parse(await getAsync(key));
 	if(data) { 
 		for (let [key, value] of Object.entries(obj)) data[key] = value;
-		await setAsync(key, JSON.stringify(data));
-	} else { 
-		await setAsync(key, JSON.stringify(obj));
-	}
+		await setAsync(key, JSON.stringify(data), 'EX', 60*60*24);
+	} else await setAsync(key, JSON.stringify(obj), 'EX', 60*60*24);
 }
+
 module.exports.sadd = async (key, member) => await saddAsync(key, member);
 
 module.exports.smembers = async key => await smembersAsync(key);
