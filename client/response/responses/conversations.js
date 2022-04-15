@@ -1,4 +1,6 @@
-module.exports.showStatus = (socket, res) => {
+let Response = require('../Response'); 
+
+let showStatus = (client, res) => {
 	try {
 		console.log(`Response: ${res.body.message}.`);
 	} catch(err) {
@@ -6,15 +8,23 @@ module.exports.showStatus = (socket, res) => {
 	}
 }
 
-module.exports.allChats = (socket, res) => {
+Response.addResponse('join_chat', showStatus);
+Response.addResponse('leave_chat', showStatus);
+Response.addResponse('add_user', showStatus);
+Response.addResponse('remove_user', showStatus);
+Response.addResponse('create_chat', showStatus);
+Response.addResponse('remove_chat', showStatus);
+Response.addResponse('goto_chat', showStatus);
+
+Response.addResponse('allChats', (client, res) => {
 	try {
 		res.body.conversations.forEach((chat_name, i) => console.log(`${i}) ${chat_name}`));
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
-}
+});
 
-module.exports.getAllUsers = (socket, res) => {
+let getAllUsers = (client, res) => {
 	try {
 		res.body.users.forEach((username, i) => console.log(`${i}) ${username}`));
 	} catch(err) {
@@ -22,7 +32,10 @@ module.exports.getAllUsers = (socket, res) => {
 	}
 }
 
-module.exports.getUsersChats = (socket, res) => {
+Response.addResponse('showUsers', getAllUsers);
+Response.addResponse('showOnline', getAllUsers);
+
+Response.addResponse('myChats', (client, res) => {
 	try {
 		let allChats = res.body.conversations.map(conversation  => conversation);
 		console.log('\nYour Chats: ');
@@ -31,9 +44,9 @@ module.exports.getUsersChats = (socket, res) => {
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
-}
+});
 
-module.exports.getNewUsers = (socket, res) => {
+Response.addResponse('newUsers', (client, res) => {
 	try {
 		let newUsers = res.body.newUsers;
 		newUsers.forEach(users => {
@@ -42,4 +55,4 @@ module.exports.getNewUsers = (socket, res) => {
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
-}
+});

@@ -1,9 +1,10 @@
+let Request = require('../Request');
 let error = require('./error');
 let redis = require('../../redis/setAndGet');
 let Socket = require('../../modules/sockets/Socket');
 let User = require('../../mongodb/schemas/userSchema');
 
-module.exports.sendMessage = async (socket, req, session) => {
+Request.addRequest('send_message', async (socket, req, session) => {
     try {
         if(socket.currentChat && await redis.sismember(socket.currentChat, socket.id)){
             let members = await redis.smembers(socket.currentChat);
@@ -19,4 +20,4 @@ module.exports.sendMessage = async (socket, req, session) => {
     } catch(err) {
         error(socket, req, err);
     }
-}
+});

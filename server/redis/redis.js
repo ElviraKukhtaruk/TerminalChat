@@ -8,6 +8,7 @@ const client = redis.createClient({
 
 client.on("error", function(error) {
 	console.error(error);
+	if(error.code == 'ECONNREFUSED') process.exit();
 });
 
 client.on('connect', function() {

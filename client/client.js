@@ -1,9 +1,9 @@
 let handshake = require('./handshake/ECDHHandshake');
 let Response = require('./response/Response');
-let initResponses = require('./response/initResponses');
 let client;
 
-initResponses();
+// Init Responses
+require('./response/initResponses');
 
 async function connection() {
 	try {
@@ -26,7 +26,8 @@ function receiveDataFromServer(data) {
 		if(client.status === 'auth') Response.matchResponseType(client, data);
 		else handshake.ECDH(client, data);
 	} catch(err) {
-		console.log(`${socket.status} - An error occurred while receiving data: ${err}`);
+		throw err;
+		//console.log(`${client.status} - An error occurred while receiving data: ${err}`);
 	}
 }
     

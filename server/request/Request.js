@@ -15,8 +15,9 @@ module.exports = {
 
 	matchRequestType: async function(socket, request) {
 		let data = socket.get(request, true), session = socket.token ? await redis.get(socket.token) : null;
+		let allowedRequests = ['log_in', 'registration'];
 		// To send requests of a special type, user needs to log in / register
-		if (data.header.type === 'log_in' || data.header.type === 'registration' || session) {
+		if (allowedRequests.includes(data.header.type) || session) {
 			// Depending on the type of request, perform the desired function
 			this._requests[data.header.type] ? this._switch(data, socket, session) : socket.error('Request not found', data.header.type);
 		} else socket.error('You are not logged in', data.header.type);

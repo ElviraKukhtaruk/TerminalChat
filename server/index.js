@@ -3,10 +3,10 @@ let db = require('./mongodb/mongoose');
 let redis = require('./redis/setAndGet');
 let handshake = require('./handshake/ECDHHandshake');
 let Request = require('./request/Request');
-let initRequests = require('./request/initRequests');
 let Socket = require('./modules/sockets/Socket');
 
-initRequests();
+// Init Requests
+require('./request/initRequests');
 
 let server = net.createServer(socket => {
 	try {

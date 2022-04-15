@@ -1,6 +1,7 @@
+let Response = require('../Response');
 let file = require('../../../shared/AsyncFileOperations');
 
-module.exports = async (client, res) => {
+let logIn = async (client, res) => {
 	try {
 		if(res.body.token) await file.write(`./token`, res.body.token);
 		client.send({header: {type: 'myChats'}, body: {} });
@@ -8,3 +9,6 @@ module.exports = async (client, res) => {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
 }
+
+Response.addResponse('log_in', logIn);
+Response.addResponse('registration', logIn);

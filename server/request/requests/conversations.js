@@ -1,10 +1,11 @@
+let Request = require('../Request');
 let Conversation = require('../../mongodb/schemas/conversation');
 let User = require('../../mongodb/schemas/userSchema');
 let error = require('./error');
 let redis = require('../../redis/setAndGet');
 let Socket = require('../../modules/sockets/Socket');
 
-module.exports.joinChat = async (socket, req, session) => {
+Request.addRequest('join_chat', async (socket, req, session) => {
 	try {
 		let conversation = await Conversation.findOne({name: req.body.conversation_name});
 		if(conversation && !conversation.users.includes(session.user_id)) {
@@ -14,9 +15,9 @@ module.exports.joinChat = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.leaveChat = async (socket, req, session) => {
+Request.addRequest('leave_chat', async (socket, req, session) => {
 	try {
 		let chat = await Conversation.findOneAndUpdate({name: req.body.chat}, {$pull: {users: session.user_id }});
         if (chat){ 
@@ -27,18 +28,18 @@ module.exports.leaveChat = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.exitChat = async (socket, req, session) => {
+Request.addRequest('exit_chat', async (socket, req, session) => {
 	try {
 		let chat = await Conversation.findOne({name: req.body.chat});
 		if(chat) await redis.srem(req.body.chat, socket.id);
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.getUsersChats = async (socket, req, session) => {
+Request.addRequest('myChats', async (socket, req, session) => {
 	try {
 		let user = await User.findById(session.user_id).populate('conversations');
 		let conversations = user.conversations.map(chats => chats ? chats.name : null);
@@ -48,11 +49,10 @@ module.exports.getUsersChats = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-
-module.exports.gotoChat = async (socket, req, session) => {
-    try {
+Request.addRequest('goto_chat', async (socket, req, session) => {
+	try {
         let user = await User.findById(session.user_id);
         let chat = user ? await Conversation.findOne({name: req.body.chat}) : null;
         if(chat && user.conversations.includes(chat._id)){
@@ -66,9 +66,9 @@ module.exports.gotoChat = async (socket, req, session) => {
     } catch(err){
         error(socket, req, err);
     }
-}
+});
 
-module.exports.getNewUsers = async (socket, req, session) => {
+Request.addRequest('newUsers', async (socket, req, session) => {
 	try {
 		let ownConversations = await Conversation.find({admin: session.user_id}).populate('newUsers'), newUsers = [];
 		// Get each of the admin's chats
@@ -80,9 +80,9 @@ module.exports.getNewUsers = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.getAllUsers = async (socket, req, session) => {
+Request.addRequest('showUsers', async (socket, req, session) => {
 	try {
 		let user = await User.findById(session.user_id);
 		let conversation = await Conversation.findOne({name: req.body.conversation_name}).populate('users');
@@ -93,9 +93,9 @@ module.exports.getAllUsers = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.getAllOnlineUsers = async (socket, req, session) => {
+Request.addRequest('showOnline', async (socket, req, session) => {
 	try {
 		let user = await User.findById(session.user_id);
 		let conversation = await Conversation.findOne({name: req.body.conversation_name});
@@ -111,18 +111,18 @@ module.exports.getAllOnlineUsers = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.getAllChats = async (socket, req, session) => {
+Request.addRequest('allChats', async (socket, req, session) => {
 	try {
 		let allChats = await Conversation.find({}), allChatsArray = allChats.map(conversation => conversation.name);
 		socket.send({header: {type: req.header.type}, body: {conversations: allChatsArray} });
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.addUser = async (socket, req, session) => {
+Request.addRequest('add_user', async (socket, req, session) => {
 	try {
 		let user = await User.findOne({username: req.body.user}), chat = await Conversation.findOne({name: req.body.chat});
 		let isUserInNewUsersList = user && chat ? chat.newUsers.includes(user._id) : false;
@@ -139,9 +139,9 @@ module.exports.addUser = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.removeUser = async (socket, req, session) => {
+Request.addRequest('remove_user', async (socket, req, session) => {
 	try {
 		let user = await User.findOne({username: req.body.user}), chat = await Conversation.findOne({name: req.body.chat});
 		if(user && chat && session.user_id == chat.admin){ 
@@ -156,9 +156,9 @@ module.exports.removeUser = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 
-module.exports.createChat = async (socket, req, session) => {
+Request.addRequest('create_chat', async (socket, req, session) => {
 	try {
 		let name = req.body.chat;
 		let onlyLettersNumbersUnderscore = name.length <= 20 && name.length >= 1 ? /^\w+$/.test(name) : false;
@@ -176,9 +176,9 @@ module.exports.createChat = async (socket, req, session) => {
 	} catch(err) {
 		err.code === 11000 ? socket.error('A chat with this name already exists', req.header.type) : error(socket, req, err);
 	}
-}
+});
 
-module.exports.removeChat = async (socket, req, session) => {
+Request.addRequest('remove_chat', async (socket, req, session) => {
 	try {
 		let chat = await Conversation.findOne({name: req.body.chat});
 		if(chat.admin == session.user_id){ 
@@ -195,5 +195,5 @@ module.exports.removeChat = async (socket, req, session) => {
 	} catch(err) {
 		error(socket, req, err);
 	}
-}
+});
 

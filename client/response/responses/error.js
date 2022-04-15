@@ -1,7 +1,7 @@
+let Response = require('../Response');
 let login = require('../../modules/auth/logIn');
-let { getDataFromConsole } = require('../../modules/userData/getData');
 
-module.exports = async (client, res) => {
+Response.addResponse('error', async (client, res) => {
 	try {
 		let requestType = res.header.previousType ? `Request type: ${res.header.previousType}` : '';
 		console.log(`Error response: ${res.body.message}. ${requestType}`);
@@ -10,4 +10,4 @@ module.exports = async (client, res) => {
 	} catch(err) {
 		console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
 	}
-}
+});

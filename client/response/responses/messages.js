@@ -1,6 +1,8 @@
+let Response = require('../Response');
 let { userData } = require('../../modules/userData/getData');
 
-module.exports.message = async (socket, res, session) => {
+
+Response.addResponse('message', (client, res, session) => {
     try {
         process.stdout.clearLine();
         process.stdout.cursorTo(0);
@@ -9,4 +11,4 @@ module.exports.message = async (socket, res, session) => {
     } catch(err) {
         console.log(`An error occurred while receiving a response from the server, type: ${res.header.type}: ${err}`);
     }
-}
+});
