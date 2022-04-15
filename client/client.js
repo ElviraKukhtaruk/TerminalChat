@@ -26,8 +26,7 @@ function receiveDataFromServer(data) {
 		if(client.status === 'auth') Response.matchResponseType(client, data);
 		else handshake.ECDH(client, data);
 	} catch(err) {
-		throw err;
-		//console.log(`${client.status} - An error occurred while receiving data: ${err}`);
+		console.log(`${client.status} - An error occurred while receiving data: ${err}`);
 	}
 }
     
