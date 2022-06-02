@@ -61,8 +61,8 @@ Request.addRequest('goto_chat', async (socket, req, session) => {
             socket.currentChat = req.body.chat;
             Socket.addSocket(socket.id, socket);
             await redis.sadd(req.body.chat, socket.id);
-            socket.send({header: {type: req.header.type}, body: {message: 'You have joined the chat'}});
-        } else socket.error('You are not a member of this chat', req.header.type);
+            socket.send({header: {type: req.header.type}, body: {message: 'You have joined the chat. (CTRL+C or type "/exit" to exit)'}});
+        } else socket.send({header: {type: req.header.type, status: 'error'}, body: {message: 'You are not a member of this chat'}});
     } catch(err){
         error(socket, req, err);
     }
@@ -126,7 +126,7 @@ Request.addRequest('add_user', async (socket, req, session) => {
 	try {
 		let user = await User.findOne({username: req.body.user}), chat = await Conversation.findOne({name: req.body.chat});
 		let isUserInNewUsersList = user && chat ? chat.newUsers.includes(user._id) : false;
-		if(chat && isUserInNewUsersList && session.user_id == chat.admin){ 
+		if(isUserInNewUsersList && session.user_id == chat.admin){ 
 
 			await Conversation.findOneAndUpdate({name: req.body.chat}, {$addToSet: {users: user._id}});
 			await Conversation.findOneAndUpdate({name: req.body.chat}, {$pull: {newUsers: user._id}});
@@ -183,7 +183,7 @@ Request.addRequest('remove_chat', async (socket, req, session) => {
 		let chat = await Conversation.findOne({name: req.body.chat});
 		if(chat.admin == session.user_id){ 
 			await redis.delete(req.body.chat);
-
+			// Find each user in this chat and remove this chat from their conversations
 			await Promise.all(chat.users.map(async user => { 
 				await User.findByIdAndUpdate(user, {$pull: {conversations: chat._id} });
 			}));

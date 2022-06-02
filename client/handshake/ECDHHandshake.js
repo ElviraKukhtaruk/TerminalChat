@@ -1,6 +1,7 @@
 let crypto = require('../../shared/cryptographic/crypto');
 let file = require('../../shared/AsyncFileOperations');
-let transmission = require('../../shared/cryptographic/transmission');
+let shared_transmission = require('../../shared/cryptographic/transmission');
+let client_transmission = require('../modules/cryptographic/transmission');
 let login = require('../modules/auth/logIn');
 
 module.exports.newConnection = async (client, publicServerKeyPath) => {
@@ -10,10 +11,9 @@ module.exports.newConnection = async (client, publicServerKeyPath) => {
 	let publicServerKey = await file.read(publicServerKeyPath);
 	let preMasterSecret = crypto.generateSecret(publicServerKey, staticECDHKeys.privateKey);
 	client.secret = preMasterSecret;
-	client.send = transmission.encrypt;
-	client.get = transmission.decrypt;
+	client.send = client_transmission.encrypt;
+	client.get = shared_transmission.decrypt;	
 }
-
 
 
 module.exports.ECDH = async (client, data) => {
@@ -26,6 +26,7 @@ module.exports.ECDH = async (client, data) => {
 		client.secret = masterSecret, client.status = 'auth';
 		await login(client);
 	} catch(err) {
-		console.log(`An error occurred during the ECDH handshake: ${err}`);
+		console.log(err);
+		//console.log(`An error occurred during the ECDH handshake: ${err}`);
  	}
 }
