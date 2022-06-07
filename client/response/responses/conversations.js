@@ -14,7 +14,6 @@ Response.addResponse('add_user', showStatus);
 Response.addResponse('remove_user', showStatus);
 Response.addResponse('create_chat', showStatus);
 Response.addResponse('remove_chat', showStatus);
-//Response.addResponse('goto_chat', showStatus);
 
 Response.addResponse('allChats', (client, res) => {
 	try {

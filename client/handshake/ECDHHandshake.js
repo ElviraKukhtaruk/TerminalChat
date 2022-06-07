@@ -26,7 +26,6 @@ module.exports.ECDH = async (client, data) => {
 		client.secret = masterSecret, client.status = 'auth';
 		await login(client);
 	} catch(err) {
-		console.log(err);
-		//console.log(`An error occurred during the ECDH handshake: ${err}`);
+		console.log(`An error occurred during the ECDH handshake: ${err}`);
  	}
 }

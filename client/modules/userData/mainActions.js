@@ -39,14 +39,6 @@ module.exports = (client, action, value, value2) => {
             break;
         case 'leave':
             client.send({header: {type: 'leave_chat'}, body: {chat: value} });
-        case '/exit':
-            getData.exitChat(client);
-            break;
-        case '/who':
-            client.send({header: {type: 'showOnline'}, body: {conversation_name: value} });
-            break;
-        case '/users':
-            client.send({header: {type: 'showUsers'}, body: {conversation_name: value} });
             break;
         case 'chat':
             // showUsers, showOnline

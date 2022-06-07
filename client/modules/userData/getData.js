@@ -1,4 +1,5 @@
-let actions = require('./actions');
+let actions = require('./mainActions');
+let chatActions = require('./chatActions');
 let currentUserData = '', isChat = false, chatName = '';
 
 let exitChat = (client) => {
@@ -35,7 +36,7 @@ module.exports.getDataFromConsole = function(data){
 					this.client.send({header: {type: 'goto_chat'}, body: {chat: chatName}}, doesThisChatExist);
 				}
 				// If the first character is '/', then this is a chat action.
-				else if(isChat && currentUserData[0] == '/') actions(this.client, currentUserData, chatName);
+				else if(isChat && currentUserData[0] == '/') chatActions(this.client, currentUserData, chatName);
 				else isChat ? actions(this.client, 'sendMessage', currentUserData) : actions(this.client, ...parameters);
 				currentUserData = ''; 
 				break;
