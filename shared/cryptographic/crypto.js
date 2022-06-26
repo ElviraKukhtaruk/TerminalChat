@@ -1,7 +1,6 @@
 let crypto = require('crypto');
 let file = require('../AsyncFileOperations');
 
-let IV;
 
 module.exports.getPrivateStaticKey = async (pathToStaticKey) => {
 	let readStaticKey = await file.read(pathToStaticKey);
@@ -37,7 +36,7 @@ module.exports.generateECDHKeys = () => {
 
 
 module.exports.encryptData = (data, secret) => {
-	IV = crypto.randomBytes(16);
+	let IV = crypto.randomBytes(16);
 	let cipher = crypto.createCipheriv('aes-256-gcm', secret, IV);
 	let encryptedData = cipher.update(data, 'utf8', 'hex');
 	encryptedData += cipher.final('hex');
