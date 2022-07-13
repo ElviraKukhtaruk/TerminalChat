@@ -3,7 +3,7 @@ let db = require('./mongodb/mongoose');
 let redis = require('./redis/setAndGet');
 let handshake = require('./handshake/ECDHHandshake');
 let Request = require('./request/Request');
-let Socket = require('./modules/sockets/Socket');
+let handshakeTimeout = require('./handshake/handshakeTimeout');
 
 // Init Requests
 require('./request/initRequests');
@@ -12,9 +12,11 @@ let server = net.createServer(socket => {
 	try {
 		handshake.newConnection(socket);
 
+		handshakeTimeout.set(socket);
+
 		socket.on('data', Request.checkUserStatus.bind({socket, Request}));
 
-		socket.on('close', () => Socket.deleteSocket(socket));
+		socket.on('close', () => handshakeTimeout.clear(socket));
 
 		socket.on('error', err => console.log(`Socket error: ${err}`));
 	} catch(err) {

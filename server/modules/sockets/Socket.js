@@ -12,7 +12,8 @@ module.exports = {
 	},
 	deleteSocket: async function(socket){
 		// Remove the user from the chat where they were member while disconnecting
-		if(this.getSocket(socket.id).currentChat) await redis.srem(this.getSocket(socket.id).currentChat, socket.id);
+		let findSocket = this.getSocket(socket.id);
+		if(findSocket && findSocket.currentChat) await redis.srem(findSocket.currentChat, socket.id);
 		this._Sockets.delete(socket.id);
 	}
 }
