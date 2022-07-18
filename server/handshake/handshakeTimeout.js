@@ -1,7 +1,7 @@
 let Socket = require('../modules/sockets/Socket');
 
 module.exports.set = (socket) => {
-    const timeout = 10000;
+    const timeout = 30000;
 
     socket.timeoutID = setTimeout(() => { 
         try {

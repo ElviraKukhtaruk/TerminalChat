@@ -21,14 +21,14 @@ Response.addResponse('showUsers', getUsers);
 Response.addResponse('showOnline', getUsers);
 
 Response.addResponse('myChats', (client, res) => {
-	let allChats = res.body.conversations.map(conversation  => conversation);
+	let allChats = res.body.conversations;
 	console.log('\nYour Chats: ');
-	let ownChats = res.body.ownConversations.map(conversation => `${conversation}`);
+	let ownChats = res.body.ownConversations;
 	allChats.forEach((chat, i) => ownChats.includes(chat) ? console.log(`${i}) ${chat} (Admin)`) : console.log(`${i}) ${chat}`));
 });
 
 Response.addResponse('newUsers', (client, res) => {
-	let newUsers = res.body.newUsers;
+	let newUsers = res.body.newRequests;
 	newUsers.forEach(users => {
 		for (const property in users) console.log(`User: ${property}, Chat: ${users[property]}`);
 	});		

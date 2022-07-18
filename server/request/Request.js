@@ -16,7 +16,7 @@ module.exports = {
 			try {
 				await func(socket, data, session);
 			} catch(err) {
-				error(socket, req, err);
+				error(socket, data, err);
 			} 
 		});
 	},
