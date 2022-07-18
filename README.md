@@ -24,4 +24,4 @@ Example:
 node ./bin.js 127.0.0.1 3000 ../server/keys/x25519-pub.pem
 ```
 
-You also need to configure [Mongodb](https://www.mongodb.com/) and [Redis](https://redis.io/) for the server.
+You also need to configure [PostgreSQL](https://www.postgresql.org/) and [Redis](https://redis.io/) for the server.
