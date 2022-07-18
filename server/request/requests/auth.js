@@ -1,24 +1,26 @@
 let Request = require('../Request');
+let Socket = require('../../modules/sockets/Socket');
 let { Users } = require('../../postgresql/postgresql');
 let { generateToken, hash } = require('../../../shared/cryptographic/crypto');
 let redis = require('../../redis/setAndGet');
 let error = require('./error');
 
 Request.addRequest('log_in', async (socket, req) => {
-	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id']) : null;
+	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id', 'socket_id']) : null;
 	let password = user && req.body.password ? await hash(req.body.password, user[0].salt) : null;
 
 	if(req.body.token && await redis.get(req.body.token)) {
 		socket.token = req.body.token, session = await redis.get(socket.token);
-		let findUser = session ? await Users().find({id: session.user_id}) : null;
+		let findUser = session ? await Users().find({id: session.user_id}, ['socket_id']) : null;
+		Socket.deleteSocket({id: findUser[0].socket_id});
 		findUser ? await Users().update({id: session.user_id}, {socket_id: socket.id}) : null;
 		findUser ? socket.send({header: {type: req.header.type}, body: {} }) : socket.error('The user does not exist', req.header.type);
 	} else if(password && user[0].password === password.hash) {
+		Socket.deleteSocket({id: user[0].socket_id});
 		await Users().update({username: req.body.username}, {socket_id: socket.id});
 		socket.token = await generateToken(); 
 		await redis.set(socket.token, {user_id: user[0].id});
 		socket.send({header: {type: req.header.type}, body: {token: socket.token} });
-
 	} else socket.error('Invalid username/password or your token has expired', req.header.type);
 });
 

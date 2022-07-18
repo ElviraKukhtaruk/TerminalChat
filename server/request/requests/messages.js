@@ -16,5 +16,5 @@ Request.addRequest('send_message', async (socket, req, session) => {
         let members = await redis.smembers(socket.currentChat);
         let user = await db.Users().find({id: session.user_id}, ['id', 'username']);
         members.forEach(sendMessage.bind({user: user[0], req: req, socket: socket}));
-    } else socket.error('You are not a member of this chat', req.header.type);
+    } else socket.error('You are not a member of this chat. (You may have logged in from another device)', req.header.type);
 });

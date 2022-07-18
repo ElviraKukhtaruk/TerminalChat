@@ -29,6 +29,6 @@ module.exports = (client, action, value, value2) => {
             client.send({header: {type: 'showUsers'}, body: {conversation_name: value} });
             break;
         default:
-            if(action) console.log(`\nAction "${action}" not found`);
+            client.send({header: {type: 'send_message'}, body: {text: action} });
     }
 }

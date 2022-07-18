@@ -41,8 +41,10 @@ module.exports.getDataFromConsole = function(data){
 				currentUserData = ''; 
 				break;
 			default:
-				currentUserData += data;
-				process.stdout.write(data);
+				// Find non-printable characters
+				let stringData = String(data).replace(/[\x00\x08\x0B\x0C\x0E-\x1F]/g, "");
+				currentUserData += stringData;
+				process.stdout.write(stringData);
 		}
 	} catch(err) {
 		console.log(`An error occurred while processing the entered data or sending data: ${err}`);

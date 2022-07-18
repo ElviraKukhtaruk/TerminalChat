@@ -28,9 +28,9 @@ Request.addRequest('exit_chat', async (socket, req, session) => {
 });
 
 Request.addRequest('myChats', async (socket, req, session) => {
-	let query = `SELECT name FROM groups INNER JOIN usergroups ON fk_user=$1 WHERE fk_group=groups.id;`;
+	let query = `SELECT name FROM groups INNER JOIN usergroups ON groups.id=fk_group WHERE fk_user=$1;`;
 	let groups = await db.query(query, [session.user_id]);
-	let conversations = groups ? groups.map(chats => chats ? chats.name : null) : [];
+	let conversations = groups ? groups.map(chats => chats.name) : [];
 	let findOwnConversations = await db.Groups().find({fk_admin: session.user_id}, ['name']), ownConversations = [];
 	if(findOwnConversations) ownConversations = findOwnConversations.map(chats => chats.name);
 	socket.send({header: {type: req.header.type}, body: {conversations, ownConversations}});
@@ -39,7 +39,6 @@ Request.addRequest('myChats', async (socket, req, session) => {
 Request.addRequest('goto_chat', async (socket, req, session) => {
 	let group = await db.Groups().find({name: req.body.chat}, ['id']);
 	let userInChat = group ? await db.UserGroups().find({fk_user: session.user_id, fk_group: group[0].id}, ['id']) : null;
-
     if(userInChat){
         // Delete user from the last chat they visited
         if(socket.currentChat) await redis.srem(socket.currentChat, socket.id);
@@ -51,7 +50,7 @@ Request.addRequest('goto_chat', async (socket, req, session) => {
 });
 
 Request.addRequest('newUsers', async (socket, req, session) => {
-	let groupsJoin = 'SELECT username, name FROM newusers INNER JOIN groups ON groups.id=fk_group';
+	let groupsJoin = 'SELECT username, name FROM newusers INNER JOIN groups ON fk_group=groups.id';
 	let usersJoin = `JOIN users ON fk_user=users.id WHERE fk_admin=$1;`;
 	let newUsers = await db.query(`${groupsJoin} ${usersJoin}`, [session.user_id]), newRequests = [];
 	newRequests = newUsers ? newUsers.map(req => ({[req.username]: req.name})) : [];
@@ -62,11 +61,11 @@ Request.addRequest('showUsers', async (socket, req, session) => {
 	let groupName = req.body.conversation_name;
 	let group = await db.Groups().find({name: groupName}, ['id']);	
 	let userInChat = group ? await db.UserGroups().find({fk_user: session.user_id, fk_group: group[0].id}, ['id']) : null;
-	if(group && userInChat){
-		let userGroupsJoin = `SELECT username FROM users INNER JOIN usergroups ON fk_user=users.id`;
-		let groupsJoin = `INNER JOIN groups ON groups.id=fk_group WHERE name=$1;`;
+	if(userInChat){
+		let userGroupsJoin = `SELECT username FROM users INNER JOIN usergroups ON users.id=fk_user`;
+		let groupsJoin = `INNER JOIN groups ON fk_group=groups.id WHERE name=$1;`;
 		let users = await db.query(`${userGroupsJoin} ${groupsJoin}`, [groupName]);
-		users = users ? users.map(user => user.username) : null;
+		users = users ? users.map(user => user.username) : [];
 		socket.send({header: {type: req.header.type}, body: {users: users}});
 	} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
 });
@@ -109,6 +108,7 @@ Request.addRequest('remove_user', async (socket, req, session) => {
 	if(user && chat && session.user_id == chat[0].fk_admin){ 
 		await redis.srem(req.body.chat, user[0].socket_id);
 		await db.UserGroups().delete({fk_user: user[0].id, fk_group: chat[0].id});
+		await db.NewUsers().delete({fk_user: user[0].id, fk_group: chat[0].id});
 		socket.send({header: {type: req.header.type}, body: {message: 'The user has been successfully removed from the chat'}});
 	} else if(user && chat && session.user_id != chat[0].fk_admin) socket.error('You do not own this chat', req.header.type);
 	else socket.error('The chat or user was not found', req.header.type);
