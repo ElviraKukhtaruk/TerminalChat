@@ -1,4 +1,5 @@
 let redis = require('../../redis/setAndGet');
+let sessionRedis = require('../../redis/userSessions');
 
 module.exports = {
 	_Sockets: new Map(),
@@ -14,6 +15,8 @@ module.exports = {
 		// Remove the user from the chat where they were member while disconnecting
 		let findSocket = this.getSocket(socket.id);
 		if(findSocket && findSocket.currentChat) await redis.srem(findSocket.currentChat, socket.id);
+		let user_session = await sessionRedis.find(`*:${socket.id}`, 1);
+		if(user_session) await redis.delete(user_session[0]);
 		this._Sockets.delete(socket.id);
 	}
 }

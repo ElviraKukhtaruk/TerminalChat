@@ -2,6 +2,7 @@ let Request = require('../Request');
 let db = require('../../postgresql/postgresql');
 let error = require('./error');
 let redis = require('../../redis/setAndGet');
+let sessionRedis = require('../../redis/userSessions');
 let Socket = require('../../modules/sockets/Socket');
 
 Request.addRequest('join_chat', async (socket, req, session) => {
@@ -76,10 +77,11 @@ Request.addRequest('showOnline', async (socket, req, session) => {
 	if(userInChat){
 		let onlineUsers = await redis.smembers(req.body.conversation_name);
 		let users = await Promise.all(onlineUsers.map(async socket_id => {
-			let onlineUser = await db.Users().find({socket_id: socket_id}, ['username']);
-			return onlineUser ? onlineUser[0].username : null;
+			let user_session = await sessionRedis.find(`*:${socket_id}`, 1);
+			let list = user_session ? await redis.lrange(user_session[0], 0, 1) : null;
+			return list ? list[0] : null;
 		}));
-		socket.send({header: {type: req.header.type}, body: {users: users}});
+		socket.send({header: {type: req.header.type}, body: {users: [...new Set(users)]}});
 	} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
 });
 
@@ -103,10 +105,10 @@ Request.addRequest('add_user', async (socket, req, session) => {
 });
 
 Request.addRequest('remove_user', async (socket, req, session) => {
-	let user = await db.Users().find({username: req.body.user}, ['id', 'socket_id']);
+	let user = await db.Users().find({username: req.body.user}, ['id']);
 	let chat = await db.Groups().find({name: req.body.chat}, ['id', 'fk_admin']);
 	if(user && chat && session.user_id == chat[0].fk_admin){ 
-		await redis.srem(req.body.chat, user[0].socket_id);
+		await sessionRedis.deleteUserFromChatByUsername(req.body.chat, req.body.user);
 		await db.UserGroups().delete({fk_user: user[0].id, fk_group: chat[0].id});
 		await db.NewUsers().delete({fk_user: user[0].id, fk_group: chat[0].id});
 		socket.send({header: {type: req.header.type}, body: {message: 'The user has been successfully removed from the chat'}});

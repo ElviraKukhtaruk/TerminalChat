@@ -1,6 +1,6 @@
 let net = require('net');
 let db = require('./postgresql/postgresql');
-let redis = require('./redis/setAndGet');
+let clearRedis = require('./redis/clear');
 let handshake = require('./handshake/ECDHHandshake');
 let Request = require('./request/Request');
 let handshakeTimeout = require('./handshake/handshakeTimeout');
@@ -30,16 +30,6 @@ async function server(){
 }
 
 
-process.on('SIGINT', async () => {
-	console.log('\nDeleting all chats from redis...');
-	let dbSize = await redis.dbSize();
-    if(dbSize){ 
-		let allChats = await redis.scan(0, '*', `${dbSize}`, 'set');
-		// Select only keys (i != 0) - because the first element is the length of the database.
-		await Promise.all(allChats.map(async (chat, i) => i != 0 && chat.length ? await redis.delete(chat) : null));
-	}
-	console.log('All chats have been deleted');
-    process.exit();
-});
+process.on('SIGINT', clearRedis);
 
 server();

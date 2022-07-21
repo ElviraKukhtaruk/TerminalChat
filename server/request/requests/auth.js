@@ -6,18 +6,20 @@ let redis = require('../../redis/setAndGet');
 let error = require('./error');
 
 Request.addRequest('log_in', async (socket, req) => {
-	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id', 'socket_id']) : null;
+	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id', 'username']) : null;
 	let password = user && req.body.password ? await hash(req.body.password, user[0].salt) : null;
 
 	if(req.body.token && await redis.get(req.body.token)) {
 		socket.token = req.body.token, session = await redis.get(socket.token);
-		let findUser = session ? await Users().find({id: session.user_id}, ['socket_id']) : null;
-		Socket.deleteSocket({id: findUser[0].socket_id});
+		
+		await redis.rpush(`${findUser[0].username}:${socket.id}`, findUser[0].username, socket.id);
+		
 		findUser ? await Users().update({id: session.user_id}, {socket_id: socket.id}) : null;
 		findUser ? socket.send({header: {type: req.header.type}, body: {} }) : socket.error('The user does not exist', req.header.type);
 	} else if(password && user[0].password === password.hash) {
-		Socket.deleteSocket({id: user[0].socket_id});
-		await Users().update({username: req.body.username}, {socket_id: socket.id});
+
+		await redis.rpush(`${user[0].username}:${socket.id}`, user[0].username, socket.id);
+		
 		socket.token = await generateToken(); 
 		await redis.set(socket.token, {user_id: user[0].id});
 		socket.send({header: {type: req.header.type}, body: {token: socket.token} });
@@ -31,13 +33,15 @@ Request.addRequest('registration', async (socket, req) => {
 		if(onlyLettersNumbersUnderscore && username.trim().length !== 0) {
 			let passwordHash = await hash(req.body.password);
 			let newUser = await Users().insert({
-				socket_id: socket.id,
 				username: username,
 				password: passwordHash.hash,
 				salt: passwordHash.salt
 			});
 			socket.token = await generateToken(); 
 			await redis.set(socket.token, {user_id: newUser[0].id});
+
+			await redis.rpush(`${newUser[0].username}:${socket.id}`, newUser[0].username, socket.id);
+			
 			socket.send({header: {type: req.header.type}, body: {token: socket.token} });
 		} else socket.error('Choose a username 1-20 characters long. Username can contain only letters, numbers or underline', req.header.type);
 
