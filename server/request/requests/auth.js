@@ -1,5 +1,4 @@
 let Request = require('../Request');
-let Socket = require('../../modules/sockets/Socket');
 let { Users } = require('../../postgresql/postgresql');
 let { generateToken, hash } = require('../../../shared/cryptographic/crypto');
 let redis = require('../../redis/setAndGet');

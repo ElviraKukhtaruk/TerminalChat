@@ -9,7 +9,7 @@ module.exports.find = async (pattern, count, type='list') => {
         cursor = scan_res[0];
         res.push(...scan_res[1]);
     }
-    return res;
+    return res != 0 ? res : null;
 }
 
 module.exports.deleteUserFromChatByUsername = async (chat, username) => {

@@ -29,7 +29,8 @@ async function server(){
 	server.listen(3000, '0.0.0.0');
 }
 
+['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGABRT']
+.forEach(signal => process.on(signal, clearRedis));
 
-process.on('SIGINT', clearRedis);
 
 server();
