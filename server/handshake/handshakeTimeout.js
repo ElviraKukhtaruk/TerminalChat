@@ -20,6 +20,7 @@ module.exports.clear = (socket) => {
     try {
         clearTimeout(socket.timeoutID);
         Socket.deleteSocket(socket);
+        console.log(`Socket closed: ${socket.remoteAddress}`);
     } catch(err) {
         console.log(`${socket.remoteAddress} - ${socket.status} - Error during clearing timeout: ${err}`);
     }

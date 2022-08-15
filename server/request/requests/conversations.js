@@ -51,7 +51,7 @@ Request.addRequest('goto_chat', async (socket, req, session) => {
 });
 
 Request.addRequest('newUsers', async (socket, req, session) => {
-	let groupsJoin = 'SELECT username, name FROM newusers INNER JOIN groups ON fk_group=groups.id';
+	let groupsJoin = 'SELECT users.username, groups.name FROM newusers INNER JOIN groups ON fk_group=groups.id';
 	let usersJoin = `JOIN users ON fk_user=users.id WHERE fk_admin=$1;`;
 	let newUsers = await db.query(`${groupsJoin} ${usersJoin}`, [session.user_id]), newRequests = [];
 	newRequests = newUsers ? newUsers.map(req => ({[req.username]: req.name})) : [];
@@ -85,7 +85,7 @@ Request.addRequest('showOnline', async (socket, req, session) => {
 	} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
 });
 
-Request.addRequest('allChats', async (socket, req, session) => {
+Request.addRequest('allChats', async (socket, req) => {
 	let allChats = await db.Groups().find(null, ['name']);
 	let allChatsArray = allChats ? allChats.map(conversation => conversation.name) : [];
 	socket.send({header: {type: req.header.type}, body: {conversations: allChatsArray} });

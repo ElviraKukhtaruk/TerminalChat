@@ -32,5 +32,4 @@ async function server(){
 ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGABRT']
 .forEach(signal => process.on(signal, clearRedis));
 
-
 server();
