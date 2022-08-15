@@ -10,15 +10,11 @@ Request.addRequest('log_in', async (socket, req) => {
 
 	if(req.body.token && await redis.get(req.body.token)) {
 		socket.token = req.body.token, session = await redis.get(socket.token);
-		
 		await redis.rpush(`${findUser[0].username}:${socket.id}`, findUser[0].username, socket.id);
-		
 		findUser ? await Users().update({id: session.user_id}, {socket_id: socket.id}) : null;
 		findUser ? socket.send({header: {type: req.header.type}, body: {} }) : socket.error('The user does not exist', req.header.type);
 	} else if(password && user[0].password === password.hash) {
-
 		await redis.rpush(`${user[0].username}:${socket.id}`, user[0].username, socket.id);
-		
 		socket.token = await generateToken(); 
 		await redis.set(socket.token, {user_id: user[0].id});
 		socket.send({header: {type: req.header.type}, body: {token: socket.token} });
@@ -38,9 +34,7 @@ Request.addRequest('registration', async (socket, req) => {
 			});
 			socket.token = await generateToken(); 
 			await redis.set(socket.token, {user_id: newUser[0].id});
-
 			await redis.rpush(`${newUser[0].username}:${socket.id}`, newUser[0].username, socket.id);
-			
 			socket.send({header: {type: req.header.type}, body: {token: socket.token} });
 		} else socket.error('Choose a username 1-20 characters long. Username can contain only letters, numbers or underline', req.header.type);
 
