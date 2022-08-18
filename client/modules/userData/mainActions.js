@@ -1,5 +1,3 @@
-let getData = require('./getData');
-
 const help = `
 --------------------------
 Chat:

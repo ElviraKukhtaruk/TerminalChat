@@ -26,10 +26,8 @@ module.exports.hash = async (text, salt) => {
 }
 
 module.exports.generateECDHKeys = () => {
-	console.log('~ Start generating ECDH Keys...');
 	let keys = crypto.generateKeyPairSync('x25519');
 	let exportedPublicKey = keys.publicKey.export({ type: 'spki', format: 'pem' });
-	console.log('~ ECDH Keys were generated');
 	return { privateKey: keys.privateKey,
 		publicKey: exportedPublicKey }
 }
@@ -58,8 +56,6 @@ module.exports.decryptData = (data, secret, authTag, iv) => {
 
 
 module.exports.generateSecret = (publicKey, privateKey )=> { 
-	console.log('~ Start generating secret...');
 	let secret = crypto.diffieHellman({ publicKey: crypto.createPublicKey(publicKey), privateKey: privateKey });
-	console.log('~ Secret was generated');
 	return secret;
 }
