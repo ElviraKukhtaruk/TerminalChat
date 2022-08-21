@@ -31,11 +31,11 @@ module.exports.lrange = async (key, start, end) => await lrangeAsync(key, start,
 
 // Commands like SMEMBERS can block the server
 // SMEMBERS command has been replaced with a non-blocking SSCAN
-module.exports.smembers = async (key, count=10) => { 
+module.exports.smembers = async (key, match="*", count=10) => { 
 	let cursor = 0, res = [];
 
     while(cursor !== '0'){
-        let scan_res = await sscanAsync(key, cursor, 'MATCH', '*', 'COUNT', count);
+        let scan_res = await sscanAsync(key, cursor, 'MATCH', match, 'COUNT', count);
         cursor = scan_res[0];
         res.push(...scan_res[1]);
     }

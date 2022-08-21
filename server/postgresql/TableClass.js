@@ -8,13 +8,14 @@ class Table {
         this.columns = table_columns;
     }
 
-    async create(){
+    async create(other){
         let columns = '', columnsArray = Object.entries(this.columns);
         for (let i = 0; i < columnsArray.length; i++) {
             columns += `${columnsArray[i][0]} ${columnsArray[i][1]}`;
             if(i < columnsArray.length-1) columns += ', ';
         }
-        await db.query(`CREATE TABLE IF NOT EXISTS ${this.name}(${columns});`);
+        other = other ? `,${other}` : '';
+        await db.query(`CREATE TABLE IF NOT EXISTS ${this.name}(${columns}${other});`);
     }
 
     async insert(object){
@@ -28,7 +29,7 @@ class Table {
         return await db.query(text, values);
     }
 
-    async find(objectFindBy, select, other){
+    async find(objectFindBy, select, returnNull, other){
         let columns, values;
         let text = select ? `SELECT ` : `SELECT * `;
         if(select) select.forEach((key, i) => i < select.length-1 ? text += `${key}, ` : text += `${key} `);
@@ -43,7 +44,7 @@ class Table {
             }
         }
         if(other) text += ` ${other}`;
-        return await db.query(text, values);
+        return await db.query(text, values, returnNull);
     }
 
     async delete(objectFindBy, other){

@@ -36,14 +36,14 @@ module.exports.init = async () => {
             fk_user: 'INT REFERENCES users(id)',
             fk_group: 'INT REFERENCES groups(id) ON DELETE CASCADE'
         });
-        await NewUsers.create();
+        await NewUsers.create('UNIQUE (fk_user, fk_group)');
         
         UserGroups = new Table('usergroups', {
             id: 'serial PRIMARY KEY',
             fk_user: 'INT REFERENCES users(id)',
             fk_group: 'INT REFERENCES groups(id) ON DELETE CASCADE'
         });
-        await UserGroups.create();
+        await UserGroups.create('UNIQUE (fk_user, fk_group)');
         console.log('PostgreSQL is connected');
 
     } catch(err) {
@@ -51,9 +51,9 @@ module.exports.init = async () => {
     }
 }
 
-module.exports.query = async (text, values) => { 
+module.exports.query = async (text, values, returnNull=true) => { 
     let res = await client.query(text, values);
-    return res.rows == 0 ? null : res.rows;
+    return res.rows == 0 && returnNull ? null : res.rows;
 };
 module.exports.Users = () => Users;
 module.exports.Groups = () => Groups;
