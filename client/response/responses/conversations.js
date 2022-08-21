@@ -10,26 +10,33 @@ Response.addResponse('create_chat', showStatus);
 Response.addResponse('remove_chat', showStatus);
 
 Response.addResponse('allChats', (client, res) => {
-	res.body.conversations.forEach((chat_name, i) => console.log(`${i}) ${chat_name}`));
+	res.body.allChats.forEach((chat, i) => console.log(`${i}) ${chat.name}`));
 });
 
-let getUsers = (client, res) => {
-	res.body.users.forEach((username, i) => console.log('\x1b[36m%s\x1b[0m', `${i}) ${username}`));
-}
+let getArrayData = (client, res) => { 
+	switch(res.header.type){
+		case 'showUsers':
+			res.body.users.forEach((user, i) => console.log('\x1b[36m%s\x1b[0m', `${i}) ${user.username}`));
+			break;
+		case 'showOnline':
+			res.body.users.forEach((user, i) => console.log('\x1b[36m%s\x1b[0m', `${i}) ${user}`));
+			break;
+		case 'newChats':
+			res.body.chats.forEach((data, i) => console.log('\x1b[36m%s\x1b[0m', `${i}) ${data.name}`));
+	}
+};
 
-Response.addResponse('showUsers', getUsers);
-Response.addResponse('showOnline', getUsers);
+Response.addResponse('showUsers', getArrayData);
+Response.addResponse('showOnline', getArrayData);
+Response.addResponse('newChats', getArrayData);
 
 Response.addResponse('myChats', (client, res) => {
-	let allChats = res.body.conversations;
+	let allChats = res.body.conversations.map(chat => chat.name);
 	console.log('\nYour Chats: ');
-	let ownChats = res.body.ownConversations;
+	let ownChats = res.body.ownConversations.map(chat => chat.name);
 	allChats.forEach((chat, i) => ownChats.includes(chat) ? console.log(`${i}) ${chat} (Admin)`) : console.log(`${i}) ${chat}`));
 });
 
 Response.addResponse('newUsers', (client, res) => {
-	let newUsers = res.body.newRequests;
-	newUsers.forEach(users => {
-		for (const property in users) console.log(`User: ${property}, Chat: ${users[property]}`);
-	});		
+	res.body.newUser.forEach(newUser => console.log(`User: ${newUser.username}, Chat: ${newUser.name}`));		
 });

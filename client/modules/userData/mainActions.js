@@ -43,7 +43,7 @@ module.exports = (client, action, value, value2) => {
             client.send({header: {type: value}, body: {conversation_name: value2} });
             break;
         case 'show':
-            // newUsers, allChats, myChats
+            // newUsers, allChats, myChats, newChats
             client.send({header: {type: value}, body: {} });
             break;
         case 'addUser':
