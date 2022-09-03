@@ -7,12 +7,13 @@ let error = require('./error');
 Request.addRequest('log_in', async (socket, req) => {
 	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id', 'username']) : null;
 	let password = user && req.body.password ? await hash(req.body.password, user[0].salt) : null;
+	let session = req.body.token ? await redis.get(req.body.token) : null;
 
-	if(req.body.token && await redis.get(req.body.token)) {
-		socket.token = req.body.token, session = await redis.get(socket.token);
+	if(session) {
+		socket.token = req.body.token;
+		let findUser = await Users().find({id: session.user_id}, ['username']);
 		await redis.rpush(`${findUser[0].username}:${socket.id}`, findUser[0].username, socket.id);
-		findUser ? await Users().update({id: session.user_id}, {socket_id: socket.id}) : null;
-		findUser ? socket.send({header: {type: req.header.type}, body: {} }) : socket.error('The user does not exist', req.header.type);
+		socket.send({header: {type: req.header.type}, body: {}});
 	} else if(password && user[0].password === password.hash) {
 		await redis.rpush(`${user[0].username}:${socket.id}`, user[0].username, socket.id);
 		socket.token = await generateToken(); 

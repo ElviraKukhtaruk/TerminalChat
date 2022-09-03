@@ -38,5 +38,6 @@ Response.addResponse('myChats', (client, res) => {
 });
 
 Response.addResponse('newUsers', (client, res) => {
-	res.body.newUser.forEach(newUser => console.log(`User: ${newUser.username}, Chat: ${newUser.name}`));		
+	let newUsers = res.body.newUsers;
+	if(newUsers) newUsers.forEach(newUser => console.log(`User: ${newUser.username}, Chat: ${newUser.name}`));		
 });

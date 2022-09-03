@@ -62,7 +62,7 @@ Request.addRequest('newUsers', async (socket, req, session) => {
 
 Request.addRequest('newChats', async (socket, req, session) => {
 	let query = 'SELECT name FROM groups INNER JOIN newusers ON groups.id=fk_group WHERE fk_user=$1;';
-	let newChats = await db.query(query, [session.user_id]);
+	let newChats = await db.query(query, [session.user_id], false);
 	socket.send({header: {type: req.header.type}, body: {chats: newChats}});
 });
 

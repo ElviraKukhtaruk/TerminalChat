@@ -5,6 +5,7 @@ Join chat: join <chat name>
 Leave chat: leave <chat name>
 Show your chats: show myChats
 Show all available chats: show allChats
+Show chats where you haven't been added yet: show newChats
 Create chat: createChat <chat name>
 Remove chat: removeChat <chat name>
 Select chat: goto <chat name>
