@@ -1,4 +1,4 @@
-let redis = require('../../redis/setAndGet');
+let redis = require('../../redis/asyncMethods');
 let sessionRedis = require('../../redis/userSessions');
 
 module.exports = {

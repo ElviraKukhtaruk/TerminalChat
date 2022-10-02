@@ -11,9 +11,9 @@ require('./request/initRequests');
 
 async function server(){
 	await db.init();
-	let server = net.createServer(socket => {
+	let server = net.createServer(async socket => {
 		try {		
-			handshake.newConnection(socket);
+			await handshake.newConnection(socket);
 
 			handshakeTimeout.set(socket);
 

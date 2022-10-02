@@ -1,5 +1,5 @@
 let Request = require('../Request');
-let redis = require('../../redis/setAndGet');
+let redis = require('../../redis/asyncMethods');
 let Socket = require('../../modules/sockets/Socket');
 let db = require('../../postgresql/postgresql');
 

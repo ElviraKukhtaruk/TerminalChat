@@ -1,15 +1,16 @@
 let Request = require('../Request');
 let db = require('../../postgresql/postgresql');
 let error = require('./error');
-let redis = require('../../redis/setAndGet');
+let redis = require('../../redis/asyncMethods');
 let sessionRedis = require('../../redis/userSessions');
 let Socket = require('../../modules/sockets/Socket');
+let { generateRandomId } = require('../../../shared/cryptographic/crypto');
 
 Request.addRequest('join_chat', async (socket, req, session) => {
 	try {
-		let group = await db.Groups().find({name: req.body.conversation_name}, ['id']);
+		let group = await db.Groups().find({name: req.body.conversation_name}, ['id', 'private']);
 		let userInGroup = group ? await db.UserGroups().find({fk_group: group[0].id, fk_user: session.user_id}, ['id']) : null;
-		if(group && !userInGroup) {
+		if(group && !userInGroup && !group[0].private) {
 			await db.NewUsers().insert({fk_user: session.user_id, fk_group: group[0].id});
         	socket.send({header: {type: req.header.type}, body: {message: 'The request was sent to the admin'} });
 		} else socket.error('The chat was not found or you are already a member of this chat', req.header.type);
@@ -20,12 +21,13 @@ Request.addRequest('join_chat', async (socket, req, session) => {
 
 Request.addRequest('leave_chat', async (socket, req, session) => {
 	let chat = await db.Groups().find({name: req.body.chat}, ['id', 'fk_admin']);
-    if(chat && chat[0].fk_admin != session.user_id){ 
+	let userInGroup = chat ? await db.UserGroups().find({fk_group: chat[0].id, fk_user: session.user_id}, ['id']) : null;
+    if(userInGroup){ 
 		await db.UserGroups().delete({fk_user: session.user_id, fk_group: chat[0].id});
 		await db.NewUsers().delete({fk_user: session.user_id, fk_group: chat[0].id});
 		await redis.srem(req.body.chat, socket.id);
 		socket.send({header: {type: req.header.type}, body: {message: 'You left the chat'} });
-	} else socket.error('The chat was not found or you are admin', req.header.type);
+	} else socket.error('You are not a member of this chat or this chat was not found', req.header.type);
 });
 
 Request.addRequest('exit_chat', async (socket, req) => {
@@ -93,7 +95,7 @@ Request.addRequest('showOnline', async (socket, req, session) => {
 });
 
 Request.addRequest('allChats', async (socket, req) => {
-	let allChats = await db.Groups().find(null, ['name'], false);
+	let allChats = await db.Groups().find({private: false}, ['name'], false);
 	socket.send({header: {type: req.header.type}, body: {allChats}});
 });
 
@@ -124,10 +126,12 @@ Request.addRequest('remove_user', async (socket, req, session) => {
 
 Request.addRequest('create_chat', async (socket, req, session) => {
 	try {
-		let name = req.body.chat;
+		let name = req.body.chat, private = req.body.private;
 		let onlyLettersNumbersUnderscore = name.length <= 20 && name.length >= 1 ? /^\w+$/.test(name) : false;
 		if(onlyLettersNumbersUnderscore && name.trim().length !== 0) {
-			let chat = await db.Groups().insert({fk_admin: session.user_id, name: name});
+			private = private == 'private' ? true : false;
+			let link = await generateRandomId(30, 'base64');
+			let chat = await db.Groups().insert({fk_admin: session.user_id, name: name, private: private, link: link});
 			await db.UserGroups().insert({fk_user: session.user_id, fk_group: chat[0].id});
 			socket.send({header: {type: req.header.type}, body: {message: 'The chat has been created'}});
 		} else socket.error('Choose a name 1-20 characters long. Name can contain only letters, numbers or underline', req.header.type);

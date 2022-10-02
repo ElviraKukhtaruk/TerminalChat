@@ -1,4 +1,4 @@
-let redis = require('./setAndGet');
+let redis = require('./asyncMethods');
 
 
 module.exports.find = async (pattern, count, type='list') => {

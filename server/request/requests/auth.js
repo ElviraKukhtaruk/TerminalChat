@@ -1,7 +1,7 @@
 let Request = require('../Request');
 let { Users } = require('../../postgresql/postgresql');
 let { generateToken, hash } = require('../../../shared/cryptographic/crypto');
-let redis = require('../../redis/setAndGet');
+let redis = require('../../redis/asyncMethods');
 let error = require('./error');
 
 Request.addRequest('log_in', async (socket, req) => {

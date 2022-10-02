@@ -6,7 +6,7 @@ let handshakeError = require('./handshakeError');
 
 module.exports.newConnection = async (socket) => {
 	socket.status = 'new_connection';
-	socket.id = crypto.generateRandomId();
+	socket.id = await crypto.generateRandomId(16, 'hex');
 	socket.send = transmission.encrypt;
 	socket.get = transmission.decrypt;
 	socket.error = errorResponse;

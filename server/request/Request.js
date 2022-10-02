@@ -1,4 +1,4 @@
-let redis = require('../redis/setAndGet');
+let redis = require('../redis/asyncMethods');
 let handshake = require('../handshake/ECDHHandshake');
 let error = require('./requests/error');
 

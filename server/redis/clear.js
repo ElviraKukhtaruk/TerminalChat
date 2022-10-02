@@ -1,4 +1,4 @@
-let redis = require('./setAndGet');
+let redis = require('./asyncMethods');
 let redisSession = require('./userSessions');
 
 module.exports = async () => {
@@ -9,8 +9,8 @@ module.exports = async () => {
         if (allChats) for (const chat of allChats) {
             await redis.delete(chat);
         }
-        let allSessions = await redisSession.find('*', dbSize);
-        if (allChats) for (const session of allSessions) {
+        let allSessions = await redisSession.find('*', 100);
+        if (allSessions) for (const session of allSessions) {
             await redis.delete(session);
         }
         

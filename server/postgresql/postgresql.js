@@ -27,7 +27,9 @@ module.exports.init = async () => {
         Groups = new Table('groups', {
             id: 'serial PRIMARY KEY',
             fk_admin: 'INT REFERENCES users(id)',
-            name: 'VARCHAR(20) UNIQUE NOT NULL'
+            name: 'VARCHAR(20) UNIQUE NOT NULL',
+            private: 'BOOLEAN NOT NULL',
+            link: 'VARCHAR(40)'
         });
         await Groups.create();
         
