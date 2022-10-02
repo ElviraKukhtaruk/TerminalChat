@@ -53,8 +53,8 @@ module.exports = (client, action, value, value2) => {
         case 'removeUser':
             client.send({header: {type: 'remove_user'}, body: {user: value, chat: value2} });
             break;
-        case 'createChat':
-            client.send({header: {type: 'create_chat'}, body: {chat: value} });
+        case 'createChat': 
+            client.send({header: {type: 'create_chat'}, body: {chat: value, private: value2} });
             break;
         case 'removeChat':
             client.send({header: {type: 'remove_chat'}, body: {chat: value} });

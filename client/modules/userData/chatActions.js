@@ -5,7 +5,7 @@ const help = `
 Chat actions:
 /help: Show help
 /exit: Exit chat
-/who: Show all online users in current chat
+/who: Show all online users in chat
 /users: Show all users in chat
 --------------------------
 `;

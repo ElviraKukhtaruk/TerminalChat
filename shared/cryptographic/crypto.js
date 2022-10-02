@@ -1,6 +1,7 @@
 let crypto = require('crypto');
+let { promisify } = require('util');
 let file = require('../AsyncFileOperations');
-
+let randomBytesAsync = promisify(crypto.randomBytes);
 
 module.exports.getPrivateStaticKey = async (pathToStaticKey) => {
 	let readStaticKey = await file.read(pathToStaticKey);
@@ -10,7 +11,10 @@ module.exports.getPrivateStaticKey = async (pathToStaticKey) => {
 	return staticKey;
 }
 
-module.exports.generateRandomId = () => crypto.randomUUID();
+module.exports.generateRandomId = async (bytes, format) => { 
+	let id = await randomBytesAsync(bytes);
+	return id.toString(format);
+}
 
 module.exports.generateToken = async () => {
 	return await new Promise((resolve, reject) => {
