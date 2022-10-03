@@ -36,11 +36,14 @@ module.exports = (client, action, value, value2) => {
         case 'join':
             client.send({header: {type: 'join_chat'}, body: {conversation_name: value} });
             break;
+        case 'link':
+            client.send({header: {type: 'link'}, body: {link: value} });
+            break;
         case 'leave':
             client.send({header: {type: 'leave_chat'}, body: {chat: value} });
             break;
         case 'chat':
-            // showUsers, showOnline
+            // showUsers, showOnline, showLink, regLink
             client.send({header: {type: value}, body: {conversation_name: value2} });
             break;
         case 'show':

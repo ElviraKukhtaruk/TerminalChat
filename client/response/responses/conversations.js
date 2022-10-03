@@ -1,6 +1,7 @@
 let Response = require('../Response'); 
 
 let showStatus = (client, res) => console.log(`\nResponse: ${res.body.message}.`);
+let showLink = (client, res) => console.log(`\nChat link: ${res.body.link}`);
 
 Response.addResponse('join_chat', showStatus);
 Response.addResponse('leave_chat', showStatus);
@@ -8,6 +9,9 @@ Response.addResponse('add_user', showStatus);
 Response.addResponse('remove_user', showStatus);
 Response.addResponse('create_chat', showStatus);
 Response.addResponse('remove_chat', showStatus);
+Response.addResponse('link', showStatus);
+Response.addResponse('showLink', showLink);
+Response.addResponse('regLink', showLink);
 
 Response.addResponse('allChats', (client, res) => {
 	res.body.allChats.forEach((chat, i) => console.log(`${i}) ${chat.name}`));

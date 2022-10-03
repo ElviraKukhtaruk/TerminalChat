@@ -29,7 +29,7 @@ module.exports.init = async () => {
             fk_admin: 'INT REFERENCES users(id)',
             name: 'VARCHAR(20) UNIQUE NOT NULL',
             private: 'BOOLEAN NOT NULL',
-            link: 'VARCHAR(40)'
+            link: 'VARCHAR(40) UNIQUE NOT NULL'
         });
         await Groups.create();
         

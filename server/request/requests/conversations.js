@@ -4,6 +4,7 @@ let error = require('./error');
 let redis = require('../../redis/asyncMethods');
 let sessionRedis = require('../../redis/userSessions');
 let Socket = require('../../modules/sockets/Socket');
+let regenerateChatLink = require('../../modules/chat/regenerateLink');
 let { generateRandomId } = require('../../../shared/cryptographic/crypto');
 
 Request.addRequest('join_chat', async (socket, req, session) => {
@@ -74,7 +75,7 @@ Request.addRequest('showUsers', async (socket, req, session) => {
 	let userInChat = group ? await db.UserGroups().find({fk_user: session.user_id, fk_group: group[0].id}, ['id']) : null;
 	if(userInChat){
 		let userGroupsJoin = 'SELECT username FROM users INNER JOIN usergroups ON users.id=fk_user';
-		let groupsJoin = `INNER JOIN groups ON fk_group=groups.id WHERE name=$1;`;
+		let groupsJoin = 'INNER JOIN groups ON fk_group=groups.id WHERE name=$1;';
 		let users = await db.query(`${userGroupsJoin} ${groupsJoin}`, [groupName], false);
 		socket.send({header: {type: req.header.type}, body: {users}});
 	} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
@@ -92,6 +93,33 @@ Request.addRequest('showOnline', async (socket, req, session) => {
 		}));
 		socket.send({header: {type: req.header.type}, body: {users: [...new Set(users)]}});
 	} else socket.error('You are not a member of this chat or this chat does not exist', req.header.type);
+});
+
+Request.addRequest('showLink', async (socket, req, session) => {
+	let chat = await db.Groups().find({name: req.body.conversation_name}, ['fk_admin', 'link']);
+	
+	if(chat && chat[0].fk_admin == session.user_id) socket.send({header: {type: req.header.type}, body: {link: chat[0].link}});
+	else socket.error('You do not own this chat', req.header.type);
+});
+
+Request.addRequest('regLink', async (socket, req, session) => {
+	let chat = await db.Groups().find({name: req.body.conversation_name}, ['fk_admin', 'id']);
+
+	if(chat && chat[0].fk_admin == session.user_id){
+		let newLink = await regenerateChatLink(chat[0].id);
+		socket.send({header: {type: req.header.type}, body: {link: newLink}});
+	} else socket.error('You do not own this chat', req.header.type);
+});
+
+Request.addRequest('link', async (socket, req, session) => {
+	let chat = await db.Groups().find({link: req.body.link}, ['id']);
+	let userInGroup = chat ? await db.UserGroups().find({fk_group: chat[0].id, fk_user: session.user_id}, ['id']) : null;
+
+	if(chat && !userInGroup){
+		await db.NewUsers().delete({fk_user: session.user_id, fk_group: chat[0].id});
+		await db.UserGroups().insert({fk_user: session.user_id, fk_group: chat[0].id});
+		socket.send({header: {type: req.header.type}, body: {message: 'You have been successfully added to the chat'}});
+	} else socket.error('The chat was not found or you are already a member of this chat', req.header.type); 
 });
 
 Request.addRequest('allChats', async (socket, req) => {
@@ -127,7 +155,7 @@ Request.addRequest('remove_user', async (socket, req, session) => {
 Request.addRequest('create_chat', async (socket, req, session) => {
 	try {
 		let name = req.body.chat, private = req.body.private;
-		let onlyLettersNumbersUnderscore = name.length <= 20 && name.length >= 1 ? /^\w+$/.test(name) : false;
+		let onlyLettersNumbersUnderscore = name.length < 21 && name.length > 0 ? /^\w+$/.test(name) : false;
 		if(onlyLettersNumbersUnderscore && name.trim().length !== 0) {
 			private = private == 'private' ? true : false;
 			let link = await generateRandomId(30, 'base64');

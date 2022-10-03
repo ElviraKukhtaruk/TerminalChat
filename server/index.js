@@ -6,7 +6,6 @@ let Request = require('./request/Request');
 let handshakeTimeout = require('./handshake/handshakeTimeout');
 
 
-// Init Requests
 require('./request/initRequests');
 
 async function server(){
