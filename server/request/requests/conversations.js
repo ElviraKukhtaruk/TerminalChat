@@ -4,7 +4,6 @@ let error = require('./error');
 let redis = require('../../redis/asyncMethods');
 let sessionRedis = require('../../redis/userSessions');
 let Socket = require('../../modules/sockets/Socket');
-let regenerateChatLink = require('../../modules/chat/regenerateLink');
 let { generateRandomId } = require('../../../shared/cryptographic/crypto');
 
 Request.addRequest('join_chat', async (socket, req, session) => {
@@ -106,8 +105,30 @@ Request.addRequest('regLink', async (socket, req, session) => {
 	let chat = await db.Groups().find({name: req.body.conversation_name}, ['fk_admin', 'id']);
 
 	if(chat && chat[0].fk_admin == session.user_id){
-		let newLink = await regenerateChatLink(chat[0].id);
+		let newLink = await generateRandomId(30, 'base64');
+		await db.Groups().update({id: chat[0].id}, {link: newLink});
 		socket.send({header: {type: req.header.type}, body: {link: newLink}});
+	} else socket.error('You do not own this chat', req.header.type);
+});
+
+Request.addRequest('mode', async (socket, req, session) => {
+	let chat = await db.Groups().find({name: req.body.conversation_name}, ['fk_admin', 'id']);
+	let mode = req.body.mode, message;
+
+	if(chat && chat[0].fk_admin == session.user_id){
+		switch (mode) {
+			case 'private':
+				await db.Groups().update({id: chat[0].id}, {private: true});
+				message = 'Chat mode: private';
+				break;
+			case 'public':
+				await db.Groups().update({id: chat[0].id}, {private: false});
+				message = 'Chat mode: public';
+				break;
+			default:
+				message = 'Wrong chat mode';
+		}
+		socket.send({header: {type: req.header.type}, body: {message}});
 	} else socket.error('You do not own this chat', req.header.type);
 });
 

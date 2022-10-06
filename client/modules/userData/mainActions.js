@@ -2,6 +2,7 @@ const help = `
 --------------------------
 Chat:
 Join chat: join <chat name>
+Join chat via link: link <chat link>
 Leave chat: leave <chat name>
 Show your chats: show myChats
 Show all available chats: show allChats
@@ -9,6 +10,9 @@ Show chats where you haven't been added yet: show newChats
 Create chat: createChat <chat name>
 Remove chat: removeChat <chat name>
 Select chat: goto <chat name>
+Show chat link: chat showLink <chat name>
+Regenerate chat link: chat regLink <chat name>
+Change chat mode: chat mode <chat name> <public|private>
 
 Users:
 Show users who want to join your chat: show newUsers
@@ -25,7 +29,7 @@ Chat actions:
 `;
 
 
-module.exports = (client, action, value, value2) => {
+module.exports = (client, action, value, value2, value3) => {
 
     if(action != 'sendMessage') process.stdout.write('\n');
 
@@ -43,8 +47,8 @@ module.exports = (client, action, value, value2) => {
             client.send({header: {type: 'leave_chat'}, body: {chat: value} });
             break;
         case 'chat':
-            // showUsers, showOnline, showLink, regLink
-            client.send({header: {type: value}, body: {conversation_name: value2} });
+            // showUsers, showOnline, showLink, regLink, mode: private/public
+            client.send({header: {type: value}, body: {conversation_name: value2, mode: value3} });
             break;
         case 'show':
             // newUsers, allChats, myChats, newChats

@@ -10,6 +10,7 @@ Response.addResponse('remove_user', showStatus);
 Response.addResponse('create_chat', showStatus);
 Response.addResponse('remove_chat', showStatus);
 Response.addResponse('link', showStatus);
+Response.addResponse('mode', showStatus);
 Response.addResponse('showLink', showLink);
 Response.addResponse('regLink', showLink);
 
