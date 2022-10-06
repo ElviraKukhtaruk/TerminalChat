@@ -32,3 +32,36 @@ module.exports = (client, action, value) => {
             client.send({header: {type: 'send_message'}, body: {text: action} });
     }
 }
+
+/*
+
+
+
+let dataHistory = () => {
+	if(userData.length < 50) userData.push(currentUserData);
+	else if(userData.length > 50) { 
+		userData.shift();
+		userData.push(currentUserData);
+	}
+	userDataCurrentIndex = userData.length;
+}
+
+let arrowKeys = (data) => {
+	console.log(userDataCurrentIndex);
+	process.stdout.clearLine(); process.stdout.cursorTo(0);
+	switch(data.charCodeAt(2)){
+		// Arrow up
+		case 65:
+			if(userDataCurrentIndex > 0) userDataCurrentIndex -= 1;
+			currentUserData = userData[userDataCurrentIndex];
+			process.stdout.write(currentUserData);
+			break;
+		// Arrow down
+		case 66:
+			if(userDataCurrentIndex < userData.length-1) userDataCurrentIndex += 1;
+			currentUserData = userData[userDataCurrentIndex];
+			process.stdout.write(currentUserData);
+			break;
+	}
+}
+*/
