@@ -1,26 +1,44 @@
 let actions = require('./mainActions');
 let chatActions = require('./chatActions');
-let currentUserData = '', userData = [], userDataCurrentIndex = 0, cursor = 0, isChat = false, chatName = '';
+
+let cli = {
+	currentUserData: '',
+	cursor: 0,
+	userDataCurrentIndex: 0,
+	history: []
+};
+let chat = {
+	chatName: '',
+	isChat: false
+};
 
 let exitChat = (client) => {
 	console.log('\nExit');
-	client.send({header: {type: 'exit_chat'}, body: {chat: chatName} });
-	isChat = false, chatName = '', currentUserData = '';
+	client.send({header: {type: 'exit_chat'}, body: {chat: chat.chatName} });
+	chat.isChat = false, chat.chatName = '', cli.currentUserData = '';
 }
 
 let doesThisChatExist = (client, res) => {
 	console.log(`\n${res.body.message}`); 
-	isChat = res.header.status != 'error';
+	chat.isChat = res.header.status != 'error';
 }
 
+let printCharacter = (data) => {
+	// Escape non-printable characters
+	let stringData = String(data).replace(/[\x00\x08\x0B\x0C\x0E-\x1F]/g, "");
+	cli.currentUserData += stringData;
+	process.stdout.write(stringData);
+	cli.cursor += stringData.length;
+}
 
 let dataHistory = () => {
-	if(userData.length < 50) userData.push(currentUserData);
-	else if(userData.length > 50) { 
-		userData.shift();
-		userData.push(currentUserData);
-	}
-	userDataCurrentIndex = userData.length;
+	if(cli.history.length <= 50 && cli.currentUserData) cli.history.push(cli.currentUserData);
+	// Set max. command history length
+	else if(cli.history.length >= 50 && cli.currentUserData) { 
+		cli.history.shift();
+		cli.history.push(cli.currentUserData);
+	} cli.userDataCurrentIndex = cli.history.length;
+	cli.cursor = 0;
 }
 
 let arrowKeys = (data) => {
@@ -28,29 +46,29 @@ let arrowKeys = (data) => {
 		// Up
 		case 65:
 			process.stdout.clearLine(); process.stdout.cursorTo(0);
-			if(userDataCurrentIndex > 0) userDataCurrentIndex -= 1;
-			currentUserData = userData[userDataCurrentIndex];
-			process.stdout.write(currentUserData);
+			if(cli.userDataCurrentIndex > 0) cli.userDataCurrentIndex -= 1;
+			cli.currentUserData = cli.history[cli.userDataCurrentIndex];
+			process.stdout.write(cli.currentUserData);
+			cli.cursor = cli.currentUserData.length;
 			break;
 		// Down
 		case 66:
 			process.stdout.clearLine(); process.stdout.cursorTo(0);
-			if(userDataCurrentIndex > userData.length-1) userDataCurrentIndex -= 1;
-			if(userDataCurrentIndex < userData.length-1) userDataCurrentIndex += 1;
-			currentUserData = userData[userDataCurrentIndex];
-			process.stdout.write(currentUserData);
+			if(cli.userDataCurrentIndex > cli.history.length-1) cli.userDataCurrentIndex -= 1;
+			if(cli.userDataCurrentIndex < cli.history.length-1) cli.userDataCurrentIndex += 1;
+			cli.currentUserData = cli.history[cli.userDataCurrentIndex];
+			process.stdout.write(cli.currentUserData);
+			cli.cursor = cli.currentUserData.length;
 			break;
 		// Right
 		case 67:
-			cursor += 1;
-			console.log(currentUserData);
-			process.stdout.cursorTo(4);
+			cli.cursor += 1;
+			process.stdout.cursorTo(cli.cursor);
 			break;
 		// Left
 		case 68:
-			cursor -= 1;
-			process.stdout.cursorTo(-1);
-			
+			if(cli.cursor > 0) cli.cursor -= 1;
+			process.stdout.cursorTo(cli.cursor);	
 	}
 }
 
@@ -59,44 +77,44 @@ module.exports.getDataFromConsole = function(data){
 		switch(data.charCodeAt(0)){
 			// Ctrl+C (exit)
 			case 3:
-				if(isChat) exitChat(this.client);
+				if(chat.isChat) exitChat(this.client);
 				else process.exit();
 				break;
 			// Backspace
 			case 127:
-				// Remove last character from string
-				currentUserData = currentUserData.slice(0, -1); 
+				// Remove character from string
+				let newText = cli.currentUserData.slice(0, cli.cursor-1) + cli.currentUserData.slice(cli.cursor);
+				cli.currentUserData = newText;
+				cli.cursor -= 1; 
 				process.stdout.clearLine(); process.stdout.cursorTo(0);
-				process.stdout.write(currentUserData);
+				process.stdout.write(cli.currentUserData); process.stdout.cursorTo(cli.cursor);
 				break;
 			// Enter
 			case 13:
-				let parameters = currentUserData.split(' ');
+				let parameters = cli.currentUserData.split(' ');
 				dataHistory();
-				if(parameters[0] == 'goto' && isChat == false){ 
-					chatName = parameters[1];
-					this.client.send({header: {type: 'goto_chat'}, body: {chat: chatName}}, doesThisChatExist);
+				if(parameters[0] == 'goto' && chat.isChat == false){ 
+					chat.chatName = parameters[1];
+					this.client.send({header: {type: 'goto_chat'}, body: {chat: chat.chatName}}, doesThisChatExist);
 				}
 				// If the first character is '/', then this is a chat action.
-				else if(isChat && currentUserData[0] == '/') chatActions(this.client, currentUserData, chatName);
-				else isChat ? actions(this.client, 'sendMessage', currentUserData) : actions(this.client, ...parameters);
-				currentUserData = ''; 
+				else if(chat.isChat && cli.currentUserData[0] == '/') chatActions(this.client, cli.currentUserData, chat.chatName);
+				else chat.isChat ? actions(this.client, 'sendMessage', cli.currentUserData) : actions(this.client, ...parameters);
+				cli.currentUserData = ''; 
 				break;
 			// Control keys
+			case 27:
+				let code = data.charCodeAt(2);
+				if(cli.history.length || (!cli.history.length && (code == 67 || code == 68))) arrowKeys(data);
+				if(code < 65 || code > 68) printCharacter(data);
+				break;
 			default:
-				if(currentUserData) arrowKeys(data);
-				// Check for arrow keys (65, 66, 67, 68)
-				if(data.charCodeAt(2) < 65 || data.charCodeAt(2) > 68) {
-					// Find non-printable characters
-					let stringData = String(data).replace(/[\x00\x08\x0B\x0C\x0E-\x1F]/g, "");
-					currentUserData += stringData;
-					process.stdout.write(stringData);
-				}
+				printCharacter(data);
 		}
 	} catch(err) {
 		console.log(`An error occurred while processing the entered data or sending data: ${err}`);
 	}
 }
 
-module.exports.userData = () => currentUserData;
+module.exports.userData = () => cli.currentUserData;
 module.exports.exitChat = exitChat;
