@@ -38,7 +38,7 @@ Request.addRequest('exit_chat', async (socket, req) => {
 Request.addRequest('myChats', async (socket, req, session) => {
 	let query = 'SELECT name FROM groups INNER JOIN usergroups ON groups.id=fk_group WHERE fk_user=$1;';
 	let conversations = await db.query(query, [session.user_id], false);
-	let ownConversations = await db.Groups().find({fk_admin: session.user_id}, ['name'], false);
+	let ownConversations = await db.Groups().find({fk_admin: session.user_id}, ['name', 'private'], false);
 	socket.send({header: {type: req.header.type}, body: {conversations, ownConversations}});
 });
 

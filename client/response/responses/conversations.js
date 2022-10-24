@@ -38,8 +38,14 @@ Response.addResponse('newChats', getArrayData);
 Response.addResponse('myChats', (client, res) => {
 	let allChats = res.body.conversations.map(chat => chat.name);
 	console.log('\nYour Chats: ');
-	let ownChats = res.body.ownConversations.map(chat => chat.name);
-	allChats.forEach((chat, i) => ownChats.includes(chat) ? console.log(`${i}) ${chat} (Admin)`) : console.log(`${i}) ${chat}`));
+	let ownChats = res.body.ownConversations;
+	allChats.forEach((chat, i) => { 
+		if(!ownChats.find(e => e.name == chat)) console.log(`${i}) ${chat}`);
+		else {
+			let info = ownChats.find(e => e.private) ? '(Admin) (Private)' : '(Admin) (Public)';
+			console.log(`${i}) ${chat} ${info}`);
+		}
+	});
 });
 
 Response.addResponse('newUsers', (client, res) => {
