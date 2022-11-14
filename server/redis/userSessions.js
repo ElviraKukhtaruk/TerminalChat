@@ -14,8 +14,10 @@ module.exports.find = async (pattern, count, type='list') => {
 
 module.exports.deleteUserFromChatByUsername = async (chat, username) => {
     let userSessions = await this.find(`${username}:*`, 5);
-    for (const session of userSessions) {
-        let userSession = await redis.lrange(session, 0, 1);
-        await redis.srem(chat, userSession[1]);
+    if(userSessions){
+        for (const session of userSessions) {
+            let userSession = await redis.lrange(session, 0, 1);
+            await redis.srem(chat, userSession[1]);
+        }
     }
 }

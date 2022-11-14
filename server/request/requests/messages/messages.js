@@ -1,7 +1,7 @@
-let Request = require('../Request');
-let redis = require('../../redis/asyncMethods');
-let Socket = require('../../modules/sockets/Socket');
-let db = require('../../postgresql/postgresql');
+let Request = require('../../Request');
+let redis = require('../../../redis/asyncMethods');
+let Socket = require('../../../modules/sockets/Socket');
+let db = require('../../../postgresql/postgresql');
 
 let sendMessage = function(member_id){
     let member = Socket.getSocket(member_id);

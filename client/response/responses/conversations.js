@@ -36,15 +36,14 @@ Response.addResponse('showOnline', getArrayData);
 Response.addResponse('newChats', getArrayData);
 
 Response.addResponse('myChats', (client, res) => {
-	let allChats = res.body.conversations.map(chat => chat.name);
+	let allChats = res.body.conversations;
 	console.log('\nYour Chats: ');
 	let ownChats = res.body.ownConversations;
+	
 	allChats.forEach((chat, i) => { 
-		if(!ownChats.find(e => e.name == chat)) console.log(`${i}) ${chat}`);
-		else {
-			let info = ownChats.find(e => e.private) ? '(Admin) (Private)' : '(Admin) (Public)';
-			console.log(`${i}) ${chat} ${info}`);
-		}
+		let ownChat = ownChats.find(e => e.name == chat.name);
+		if(ownChat) console.log(`${i}) ${chat.name} (Admin) (${ownChat.private ? 'Private' : 'Public'})`);
+		else console.log(`${i}) ${chat.name}`);
 	});
 });
 

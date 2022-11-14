@@ -14,6 +14,7 @@ module.exports = {
 			try {
 				await func(client, data);
 			} catch(err) {
+				console.log(err);
 				console.log(`An error occurred while receiving a response from the server, type: ${data.header.type}: ${err}`);
 			}
 		}); else console.log(`Response not found: ${type}`);

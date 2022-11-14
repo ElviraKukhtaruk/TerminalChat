@@ -1,8 +1,8 @@
-let Request = require('../Request');
-let { Users } = require('../../postgresql/postgresql');
-let { generateToken, hash } = require('../../../shared/cryptographic/crypto');
-let redis = require('../../redis/asyncMethods');
-let error = require('./error');
+let Request = require('../../Request');
+let { Users } = require('../../../postgresql/postgresql');
+let { generateToken, hash } = require('../../../../shared/cryptographic/crypto');
+let redis = require('../../../redis/asyncMethods');
+let error = require('../errors/error');
 
 Request.addRequest('log_in', async (socket, req) => {
 	let user = req.body.username ? await Users().find({username: req.body.username}, ['salt', 'password', 'id', 'username']) : null;

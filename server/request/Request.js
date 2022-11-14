@@ -1,6 +1,6 @@
 let redis = require('../redis/asyncMethods');
 let handshake = require('../handshake/ECDHHandshake');
-let error = require('./requests/error');
+let error = require('./requests/errors/error');
 
 module.exports = {
 
@@ -41,5 +41,4 @@ module.exports = {
 			if (this.socket.status === 'auth') this.socket.error('Error during data validation on the server');
 		}
 	}
-
 }

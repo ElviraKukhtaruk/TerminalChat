@@ -1,4 +1,4 @@
-let getData = require('./getData');
+let { chat } = require('./chat/chat');
 
 const help = `
 --------------------------
@@ -17,7 +17,7 @@ module.exports = (client, action, value) => {
             console.log(help);
             break;
         case '/exit':
-            getData.exitChat(client);
+            chat.exitChat(client);
             process.stdout.write('\n');
             break;
         case '/who':

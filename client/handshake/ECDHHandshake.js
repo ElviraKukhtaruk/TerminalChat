@@ -38,6 +38,7 @@ module.exports.ECDH = async (client, data) => {
 				}
 		}
 	} catch(err) {
+		console.log(err);
 		console.log(`An error occurred during the ECDH handshake: ${err}`);
  	}
 }
