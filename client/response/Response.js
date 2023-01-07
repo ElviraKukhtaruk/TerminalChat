@@ -14,7 +14,6 @@ module.exports = {
 			try {
 				await func(client, data);
 			} catch(err) {
-				console.log(err);
 				console.log(`An error occurred while receiving a response from the server, type: ${data.header.type}: ${err}`);
 			}
 		}); else console.log(`Response not found: ${type}`);
@@ -39,6 +38,10 @@ module.exports = {
 		this._responses[_case] = this._responses[_case] || [];
 		this._responses[_case].push(func);
 		if(autoRemove) this._autoRemove.push(_case);
+	},
+
+	addResponses: function(responses, func, autoRemove) {
+		responses.forEach(response => this.addResponse(response, func, autoRemove));
 	}
 
 }

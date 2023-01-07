@@ -17,12 +17,12 @@ module.exports = async (data) => {
 			break;
 		// Right
 		case 67:
-			cli.cursor += 1;
-			process.stdout.cursorTo(cli.cursor);
+			if(cli.cursor < cli.currentData.length) cli.cursor += 1;
+			cli.updateXCursorPosition();
 			break;
 		// Left
 		case 68:
 			if(cli.cursor > 0) cli.cursor -= 1;
-			process.stdout.cursorTo(cli.cursor);	
+			cli.updateXCursorPosition();
 	}
 }

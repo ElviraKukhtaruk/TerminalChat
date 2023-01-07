@@ -5,7 +5,11 @@ let getAsync = promisify(redisClient.get).bind(redisClient);
 let delAsync = promisify(redisClient.del).bind(redisClient);
 let saddAsync = promisify(redisClient.sadd).bind(redisClient); 
 let rpushAsync = promisify(redisClient.rpush).bind(redisClient);
+let lpushAsync = promisify(redisClient.lpush).bind(redisClient);
 let lrangeAsync = promisify(redisClient.lrange).bind(redisClient);
+let llenAsync = promisify(redisClient.llen).bind(redisClient);
+let lremAsync = promisify(redisClient.lrem).bind(redisClient);
+let lindexAsync = promisify(redisClient.lindex).bind(redisClient);
 let sremAsync = promisify(redisClient.srem).bind(redisClient); 
 let sismemberAsync = promisify(redisClient.sismember).bind(redisClient); 
 let scanAsync = promisify(redisClient.scan).bind(redisClient); 
@@ -27,8 +31,15 @@ module.exports.sadd = async (key, ...member) => await saddAsync(key, member);
 
 module.exports.rpush = async (key, ...values) => await rpushAsync(key, values);
 
+module.exports.lpush = async (key, ...values) => await lpushAsync(key, values);
+
 module.exports.lrange = async (key, start, end) => await lrangeAsync(key, start, end);
 
+module.exports.llen = async key => await llenAsync(key);
+
+module.exports.lrem = async (key, count, elem) => await lremAsync(key, count, elem);
+  
+module.exports.lindex = async (key, index) => await lindexAsync(key, index);
 // Commands like SMEMBERS can block the server
 // SMEMBERS command has been replaced with a non-blocking SSCAN
 module.exports.smembers = async (key, match="*", count=10) => { 

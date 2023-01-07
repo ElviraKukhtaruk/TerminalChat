@@ -17,6 +17,7 @@ module.exports.getDataFromConsole = async function(data){
 			case 127:
 				await cli.removeCharacter();
 				process.stdout.write(cli.currentData);
+				cli.updateXCursorPosition();
 				break;
 			// Enter
 			case 13:

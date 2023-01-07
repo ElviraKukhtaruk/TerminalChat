@@ -1,5 +1,6 @@
 /server/configuration/mainConfig.js
 /server/keys/x25519-priv.pem
 /server/keys/x25519-pub.pem
+/server/keys/remote
 /node_modules
 /client/token

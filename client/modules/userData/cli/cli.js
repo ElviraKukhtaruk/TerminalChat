@@ -32,11 +32,17 @@ module.exports.cli = {
 	printCharacter: async function(data){
 		// Escape non-printable characters
 		let stringData = String(data).replace(/[\x00\x08\x0B\x0C\x0E-\x1F]/g, "");
-		// If it is first row and column, then the user has started writing a text,
-		// so we need to set start row position of the text
-		if(this.row == 1 && this.cursor == 0) this.startTextYPosition = await this.getCursorYPos();
-		process.stdout.write(stringData);
-		this.currentData += stringData, this.cursor += stringData.length;
+		// Allow writing only one character at a time 
+		if(stringData.length == 1) {
+			// If it is first row and column, then the user has started writing a text,
+			// so we need to set start row position of the text
+			if(this.row == 1 && this.cursor == 0) this.startTextYPosition = await this.getCursorYPos();
+			let newText = this.currentData.slice(0, this.cursor) + stringData + this.currentData.slice(this.cursor);
+			await this.removeOldText();
+			process.stdout.write(newText);
+			this.updateXCursorPosition(1);
+			this.currentData = newText, this.cursor += stringData.length;
+		}
 		// When the cursor moves to the next line (up or down), increase the value of the row
 		if(this.cursor > process.stdout.columns && this.cursor % process.stdout.columns == 1){ 
 			let currentRowCount = Math.ceil(this.cursor / process.stdout.columns);
@@ -84,9 +90,17 @@ module.exports.cli = {
 	},
 
 	removeCharacter: async function(){
-		let newText = this.currentData.slice(0, this.cursor-1) + this.currentData.slice(this.cursor);
-		this.currentData = newText;
-		if(this.cursor > 0) this.cursor -= 1;
-		await this.removeOldText();
+		if(this.cursor > 0) {
+			let newText = this.currentData.slice(0, this.cursor-1) + this.currentData.slice(this.cursor);
+			this.currentData = newText;
+			if(this.cursor > 0) this.cursor -= 1;
+			await this.removeOldText();
+		}
+	},
+
+	updateXCursorPosition: function(offset=0){
+		let col = process.stdout.columns;
+		let currentCursorPosition = this.cursor > col ? (col-((this.row*col)%this.cursor))+offset : this.cursor+offset;
+		process.stdout.cursorTo(currentCursorPosition);
 	}
 };

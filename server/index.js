@@ -25,7 +25,7 @@ async function server(){
 			console.log(`${socket.remoteAddress} - ${socket.status} - An error occurred while new connection: ${err}`);
 		}
 	});
-	server.listen(3000, '0.0.0.0');
+	server.listen(3000);
 }
 
 ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGABRT']
