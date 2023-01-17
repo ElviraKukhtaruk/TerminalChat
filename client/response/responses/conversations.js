@@ -2,16 +2,12 @@ let Response = require('../Response');
 
 let showStatus = (client, res) => console.log(`\nResponse: ${res.body.message}.`);
 let showLink = (client, res) => console.log(`\nChat link: ${res.body.link}`);
-/*
-['join_chat', 'leave_chat', 'add_user', 'remove_user', 'create_chat', 'remove_chat', 'link', 'mode']
-.forEach(response => Response.addResponse(response, showStatus));
 
-['showLink', 'regLink'].forEach(response => Response.addResponse(response, showLink));
-*/
 
 Response.addResponses(
 	['join_chat', 'leave_chat', 'add_user', 'remove_user', 'create_chat', 'remove_chat', 'link', 'mode'],
-	showStatus);
+	showStatus
+);
 Response.addResponses(['showLink', 'regLink'], showLink);
 
 let getArrayData = (client, res) => { 
@@ -30,10 +26,7 @@ let getArrayData = (client, res) => {
 	}
 };
 
-Response.addResponse('showUsers', getArrayData);
-Response.addResponse('showOnline', getArrayData);
-Response.addResponse('newChats', getArrayData);
-Response.addResponse('allChats', getArrayData);
+Response.addResponses(['showUsers', 'showOnline', 'newChats', 'allChats'], getArrayData);
 
 Response.addResponse('myChats', (client, res) => {
 	let allChats = res.body.conversations;

@@ -1,6 +1,11 @@
-# TerminalChat 
+# TerminalChat
 
-## 1. Generate the key pair
+## 1. Clone the repository:
+```
+git clone https://github.com/ElviraKukhtaruk/TerminalChat.git
+```
+
+## 2. Generate the key pair
 For the server:
 ```
 openssl genpkey -algorithm x25519 -out x25519-priv.pem
@@ -9,10 +14,16 @@ For clients:
 ```
 openssl pkey -in x25519-priv.pem -pubout -out x25519-pub.pem
 ```
-### Path to the server's private key:
-TerminalChat/server/keys/x25519-priv.pem
+### Path to the server's private key (You will need to create keys folder):
+```
+mkdir TerminalChat/server/keys
+```
 
-## 2. Connect with node:
+```
+mv ./x25519-priv.pem TerminalChat/server/keys
+mv ./x25519-pub.pem TerminalChat/server/keys
+```
+## 3. Connect with node (Only for clients):
 
 ```
 node TerminalChat/client/start.js host port path_to_public_server_key
