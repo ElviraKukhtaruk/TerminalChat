@@ -2,7 +2,7 @@
 
 ## 1. Clone the repository:
 ```
-git clone https://github.com/eellch/TerminalChat.git
+git clone https://github.com/ElviraKukhtaruk/TerminalChat.git
 ```
 
 ## 2. Generate the key pair
