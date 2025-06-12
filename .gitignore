@@ -4,3 +4,4 @@
 /server/keys/remote
 /node_modules
 /client/token
+package-lock.json
