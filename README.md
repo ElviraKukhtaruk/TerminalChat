@@ -24,7 +24,11 @@ mv ./x25519-pub.pem TerminalChat/server/keys
 ## 3. Run the Server
 Configure database settings:
 ```
-TerminalChat/server/configuration/mainConfig.js
+TerminalChat/server/configuration/mainConfig-template.js
+```
+Rename
+```
+mv TerminalChat/server/configuration/mainConfig-template.js TerminalChat/server/configuration/mainConfig.js
 ```
 ### Simple Docker Setup (for testing):
 Redis
